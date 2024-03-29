@@ -25,7 +25,7 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>679</width>
+         <width>615</width>
          <height>571</height>
         </rect>
        </property>
@@ -136,6 +136,80 @@
             <string>Bresenham</string>
            </property>
           </item>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item>
+      <widget class="QGroupBox" name="groupBox_3">
+       <property name="title">
+        <string>Generate Files</string>
+       </property>
+       <layout class="QGridLayout" name="gridLayout_2">
+        <item row="4" column="0">
+         <widget class="QLabel" name="label_3">
+          <property name="text">
+           <string>Poludníky:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0">
+         <widget class="QComboBox" name="comboBoxTyp">
+          <item>
+           <property name="text">
+            <string>Kocka</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Guľa</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+        <item row="5" column="0">
+         <widget class="QLabel" name="label_4">
+          <property name="text">
+           <string>Polomer:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="2">
+         <widget class="QSpinBox" name="spinBoxPoludniky"/>
+        </item>
+        <item row="2" column="2">
+         <widget class="QSpinBox" name="spinBoxRovnobezky"/>
+        </item>
+        <item row="1" column="2">
+         <widget class="QSpinBox" name="spinBoxStrany">
+          <property name="value">
+           <number>5</number>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="label_2">
+          <property name="text">
+           <string>Rovnobežky:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="label">
+          <property name="text">
+           <string>Počet strán kocky:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="2">
+         <widget class="QSpinBox" name="spinBoxPolomer"/>
+        </item>
+        <item row="6" column="0" colspan="3">
+         <widget class="QPushButton" name="pushButtonGenerate">
+          <property name="text">
+           <string>Generate</string>
+          </property>
          </widget>
         </item>
        </layout>

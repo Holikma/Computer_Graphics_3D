@@ -42,6 +42,7 @@ public:
 	int getImgWidth() { return img->width(); };
 	int getImgHeight() { return img->height(); };
 
+	void Generate(int type, int strany, int polomer, int rovnobezky, int poludniky);
 	void clear();
 
 public slots:

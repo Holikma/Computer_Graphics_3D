@@ -1,8 +1,6 @@
 #include "ImageViewer.h"
 
-ImageViewer::ImageViewer(QWidget* parent)
-	: QMainWindow(parent), ui(new Ui::ImageViewerClass)
-{
+ImageViewer::ImageViewer(QWidget* parent): QMainWindow(parent), ui(new Ui::ImageViewerClass){
 	ui->setupUi(this);
 	vW = new ViewerWidget(QSize(500, 500));
 	ui->scrollArea->setWidget(vW);
@@ -21,8 +19,7 @@ ImageViewer::ImageViewer(QWidget* parent)
 }
 
 // Event filters
-bool ImageViewer::eventFilter(QObject* obj, QEvent* event)
-{
+bool ImageViewer::eventFilter(QObject* obj, QEvent* event){
 	if (obj->objectName() == "ViewerWidget") {
 		return ViewerWidgetEventFilter(obj, event);
 	}
@@ -30,8 +27,7 @@ bool ImageViewer::eventFilter(QObject* obj, QEvent* event)
 }
 
 //ViewerWidget Events
-bool ImageViewer::ViewerWidgetEventFilter(QObject* obj, QEvent* event)
-{
+bool ImageViewer::ViewerWidgetEventFilter(QObject* obj, QEvent* event){
 	ViewerWidget* w = static_cast<ViewerWidget*>(obj);
 
 	if (!w) {
@@ -76,28 +72,22 @@ void ImageViewer::ViewerWidgetMouseButtonPress(ViewerWidget* w, QEvent* event)
 		}
 	}
 }
-void ImageViewer::ViewerWidgetMouseButtonRelease(ViewerWidget* w, QEvent* event)
-{
+void ImageViewer::ViewerWidgetMouseButtonRelease(ViewerWidget* w, QEvent* event){
 	QMouseEvent* e = static_cast<QMouseEvent*>(event);
 }
-void ImageViewer::ViewerWidgetMouseMove(ViewerWidget* w, QEvent* event)
-{
+void ImageViewer::ViewerWidgetMouseMove(ViewerWidget* w, QEvent* event){
 	QMouseEvent* e = static_cast<QMouseEvent*>(event);
 }
-void ImageViewer::ViewerWidgetLeave(ViewerWidget* w, QEvent* event)
-{
+void ImageViewer::ViewerWidgetLeave(ViewerWidget* w, QEvent* event){
 }
-void ImageViewer::ViewerWidgetEnter(ViewerWidget* w, QEvent* event)
-{
+void ImageViewer::ViewerWidgetEnter(ViewerWidget* w, QEvent* event){
 }
-void ImageViewer::ViewerWidgetWheel(ViewerWidget* w, QEvent* event)
-{
+void ImageViewer::ViewerWidgetWheel(ViewerWidget* w, QEvent* event){
 	QWheelEvent* wheelEvent = static_cast<QWheelEvent*>(event);
 }
 
 //ImageViewer Events
-void ImageViewer::closeEvent(QCloseEvent* event)
-{
+void ImageViewer::closeEvent(QCloseEvent* event){
 	if (QMessageBox::Yes == QMessageBox::question(this, "Close Confirmation", "Are you sure you want to exit?", QMessageBox::Yes | QMessageBox::No))
 	{
 		event->accept();
@@ -108,16 +98,14 @@ void ImageViewer::closeEvent(QCloseEvent* event)
 }
 
 //Image functions
-bool ImageViewer::openImage(QString filename)
-{
+bool ImageViewer::openImage(QString filename){
 	QImage loadedImg(filename);
 	if (!loadedImg.isNull()) {
 		return vW->setImage(loadedImg);
 	}
 	return false;
 }
-bool ImageViewer::saveImage(QString filename)
-{
+bool ImageViewer::saveImage(QString filename){
 	QFileInfo fi(filename);
 	QString extension = fi.completeSuffix();
 
@@ -126,8 +114,7 @@ bool ImageViewer::saveImage(QString filename)
 }
 
 //Slots
-void ImageViewer::on_actionOpen_triggered()
-{
+void ImageViewer::on_actionOpen_triggered(){
 	QString folder = settings.value("folder_img_load_path", "").toString();
 
 	QString fileFilter = "Image data (*.bmp *.gif *.jpg *.jpeg *.png *.pbm *.pgm *.ppm .*xbm .* xpm);;All files (*)";
@@ -143,8 +130,7 @@ void ImageViewer::on_actionOpen_triggered()
 		msgBox.exec();
 	}
 }
-void ImageViewer::on_actionSave_as_triggered()
-{
+void ImageViewer::on_actionSave_as_triggered(){
 	QString folder = settings.value("folder_img_save_path", "").toString();
 
 	QString fileFilter = "Image data (*.bmp *.gif *.jpg *.jpeg *.png *.pbm *.pgm *.ppm .*xbm .* xpm);;All files (*)";
@@ -164,21 +150,21 @@ void ImageViewer::on_actionSave_as_triggered()
 		msgBox.exec();
 	}
 }
-void ImageViewer::on_actionClear_triggered()
-{
+void ImageViewer::on_actionClear_triggered(){
 	vW->clear();
 }
-void ImageViewer::on_actionExit_triggered()
-{
+void ImageViewer::on_actionExit_triggered(){
 	this->close();
 }
 
-void ImageViewer::on_pushButtonSetColor_clicked()
-{
+void ImageViewer::on_pushButtonSetColor_clicked(){
 	QColor newColor = QColorDialog::getColor(globalColor, this);
 	if (newColor.isValid()) {
 		QString style_sheet = QString("background-color: #%1;").arg(newColor.rgba(), 0, 16);
 		ui->pushButtonSetColor->setStyleSheet(style_sheet);
 		globalColor = newColor;
 	}
+}
+void ImageViewer::on_pushButtonGenerate_clicked() {
+	vW->Generate(ui->comboBoxLineAlg->currentIndex(), ui->spinBoxStrany->value(), ui->spinBoxPolomer->value(), ui->spinBoxRovnobezky->value(), ui->spinBoxPoludniky->value());
 }
