@@ -6,10 +6,11 @@ ImageViewer::ImageViewer(QWidget* parent): QMainWindow(parent), ui(new Ui::Image
 	ui->scrollArea->setWidget(vW);
 
 	ui->scrollArea->setBackgroundRole(QPalette::Dark);
+	ui->scrollArea->setAlignment(Qt::AlignCenter);
 	ui->scrollArea->setWidgetResizable(true);
 	ui->scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
 	ui->scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-
+	Connect_Sliders_to_SpinBoxes();
 	vW->setObjectName("ViewerWidget");
 	vW->installEventFilter(this);
 
@@ -58,19 +59,6 @@ bool ImageViewer::ViewerWidgetEventFilter(QObject* obj, QEvent* event){
 void ImageViewer::ViewerWidgetMouseButtonPress(ViewerWidget* w, QEvent* event)
 {
 	QMouseEvent* e = static_cast<QMouseEvent*>(event);
-	if (e->button() == Qt::LeftButton && ui->toolButtonDrawLine->isChecked())
-	{
-		if (w->getDrawLineActivated()) {
-			w->drawLine(w->getDrawLineBegin(), e->pos(), globalColor, ui->comboBoxLineAlg->currentIndex());
-			w->setDrawLineActivated(false);
-		}
-		else {
-			w->setDrawLineBegin(e->pos());
-			w->setDrawLineActivated(true);
-			w->setPixel(e->pos().x(), e->pos().y(), globalColor);
-			w->update();
-		}
-	}
 }
 void ImageViewer::ViewerWidgetMouseButtonRelease(ViewerWidget* w, QEvent* event){
 	QMouseEvent* e = static_cast<QMouseEvent*>(event);
@@ -111,6 +99,23 @@ bool ImageViewer::saveImage(QString filename){
 
 	QImage* img = vW->getImage();
 	return img->save(filename, extension.toStdString().c_str());
+}
+
+//Custom functions
+
+void ImageViewer::Connect_Sliders_to_SpinBoxes() {
+	connect(ui->Slider_Meridians, SIGNAL(valueChanged(int)), ui->SpinBox_Meridians, SLOT(setValue(int)));
+	connect(ui->SpinBox_Meridians, SIGNAL(valueChanged(int)), ui->Slider_Meridians, SLOT(setValue(int)));
+
+	connect(ui->Slider_Parallels, SIGNAL(valueChanged(int)), ui->SpinBox_Parallels, SLOT(setValue(int)));
+	connect(ui->SpinBox_Parallels, SIGNAL(valueChanged(int)), ui->Slider_Parallels, SLOT(setValue(int)));
+
+	connect(ui->Slider_Radius, SIGNAL(valueChanged(int)), ui->SpinBox_Radius, SLOT(setValue(int)));
+	connect(ui->SpinBox_Radius, SIGNAL(valueChanged(int)), ui->Slider_Radius, SLOT(setValue(int)));
+
+	connect(ui->Slider_Length, SIGNAL(valueChanged(int)), ui->SpinBox_Length, SLOT(setValue(int)));
+	connect(ui->SpinBox_Length, SIGNAL(valueChanged(int)), ui->Slider_Length, SLOT(setValue(int)));
+
 }
 
 //Slots
@@ -156,7 +161,6 @@ void ImageViewer::on_actionClear_triggered(){
 void ImageViewer::on_actionExit_triggered(){
 	this->close();
 }
-
 void ImageViewer::on_pushButtonSetColor_clicked(){
 	QColor newColor = QColorDialog::getColor(globalColor, this);
 	if (newColor.isValid()) {
@@ -165,6 +169,11 @@ void ImageViewer::on_pushButtonSetColor_clicked(){
 		globalColor = newColor;
 	}
 }
-void ImageViewer::on_pushButtonGenerate_clicked() {
-	vW->Generate(ui->comboBoxLineAlg->currentIndex(), ui->spinBoxStrany->value(), ui->spinBoxPolomer->value(), ui->spinBoxRovnobezky->value(), ui->spinBoxPoludniky->value());
+
+//Custom Slots
+void ImageViewer::on_pushButtonGenerateCube_clicked() {
+	vW->Generate_Cube_VTK(ui->SpinBox_Length->value());
+}
+void ImageViewer::on_pushButtonGenerateSphere_clicked() {
+	vW->Generate_Sphere_VTK(ui->SpinBox_Radius->value(), ui->SpinBox_Meridians->value(), ui->SpinBox_Parallels->value());
 }

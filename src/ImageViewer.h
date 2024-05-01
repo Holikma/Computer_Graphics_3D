@@ -39,6 +39,10 @@ private:
 	bool openImage(QString filename);
 	bool saveImage(QString filename);
 
+	//custom functions
+	void Connect_Sliders_to_SpinBoxes();
+
+
 private slots:
 	void on_actionOpen_triggered();
 	void on_actionSave_as_triggered();
@@ -47,5 +51,6 @@ private slots:
 
 	//Tools slots
 	void on_pushButtonSetColor_clicked();
-	void on_pushButtonGenerate_clicked();
+	void on_pushButtonGenerateCube_clicked();
+	void on_pushButtonGenerateSphere_clicked();
 };

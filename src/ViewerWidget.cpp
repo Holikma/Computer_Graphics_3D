@@ -120,15 +120,9 @@ void ViewerWidget::clear() {
 	update();
 }
 
-//Slots
-void ViewerWidget::paintEvent(QPaintEvent* event) {
-	QPainter painter(this);
-	QRect area = event->rect();
-	painter.drawImage(area, *img, area);
-}
-
-void ViewerWidget::Generate(int type, int strany, int polomer, int rovnobezky, int poludniky) {
-	//Function to generate vtk file for Cube
+//Custom functions
+void ViewerWidget::Generate_Cube_VTK(int length) {
+	length = length / 2;
 	FILE* file;
 	std::string filename = "data.vtk";
 	file = fopen(filename.c_str(), "w");
@@ -136,50 +130,120 @@ void ViewerWidget::Generate(int type, int strany, int polomer, int rovnobezky, i
 		qDebug() << "Error opening file";
 		return;
 	}
+
 	fprintf(file, "# vtk DataFile Version 3.0\n");
 	fprintf(file, "vtk output\n");
 	fprintf(file, "ASCII\n");
 	fprintf(file, "DATASET POLYDATA\n");
 	QVector<QVector3D> body;
-	switch (type) {
-		case 0: { //Function to generate vtk file for Cube
-			fprintf(file, "POINTS %d int\n", strany);
-			QVector<QVector3D> points;
-			points.append(QVector3D(0, 0, 0));
-			points.append(QVector3D(strany, 0, 0));
-			points.append(QVector3D(0, strany, 0));
-			points.append(QVector3D(0, 0, strany));
-			points.append(QVector3D(0, strany, strany));
-			points.append(QVector3D(strany, 0, strany));
-			points.append(QVector3D(strany, strany, 0));
-			points.append(QVector3D(strany, strany, strany));
+	fprintf(file, "POINTS %d int\n", 8);
+	QVector<QVector3D> points;
+	//Generate points for cube with center of cube be  0 0 0 
+	points.push_back(QVector3D(-length, -length, -length));
+	points.push_back(QVector3D(length, -length, -length));
+	points.push_back(QVector3D(length, length, -length));
+	points.push_back(QVector3D(-length, length, -length));
+	points.push_back(QVector3D(-length, -length, length));
+	points.push_back(QVector3D(length, -length, length));
+	points.push_back(QVector3D(length, length, length));
+	points.push_back(QVector3D(-length, length, length));
 
-			for (int i = 0; i < points.size(); i++) {
-				fprintf(file, "%d %d %d\n", points[i].x(), points[i].y(), points[i].z());
-				qDebug() << points[i].x() << points[i].y() << points[i].z();
-			}
-
-			// Generate lines
-
-			fprintf(file, "LINES 12 36\n");
-			for (int i = 0; i < points.size(); i++) {
-				for (int j = i + 1; j < points.size(); j++) {
-					if (points[i].x() == points[j].x() || points[i].y() == points[j].y() || points[i].z() == points[j].z()) {
-						fprintf(file, "2 %d %d\n", i, j);
-					}
-				}
-			}
-
-			break;
-		}
-		case 1: { //Function to generate vtk file for Ball
-			fprintf(file, "POINTS %d float\n", strany);
-			
-			break;
-		}
+	for (int i = 0; i < 8; i++) {
+		fprintf(file, "%d %d %d\n", (int)points[i].x(), (int)points[i].y(), (int)points[i].z());
 	}
+	fprintf(file, "POLYGONS 12 48\n");
+	fprintf(file, "3 0 1 5\n");
+	fprintf(file, "3 0 5 4\n");
+	fprintf(file, "3 1 2 6\n");
+	fprintf(file, "3 1 5 6\n");
+	fprintf(file, "3 2 3 7\n");
+	fprintf(file, "3 2 7 6\n");
+	fprintf(file, "3 3 0 4\n");
+	fprintf(file, "3 3 4 7\n");
+	fprintf(file, "3 0 1 2\n");
+	fprintf(file, "3 0 2 3\n");
+	fprintf(file, "3 4 5 6\n");
+	fprintf(file, "3 4 7 6\n");
+			
+	qDebug() << "Cube generated";
 	fclose(file);
+}
+void ViewerWidget::Generate_Sphere_VTK(int radius, int meridians, int parallels) {
+	FILE* file;
+	std::string filename = "data.vtk";
+	file = fopen(filename.c_str(), "w");
+	if (file == NULL) {
+		qDebug() << "Error opening file";
+		return;
+	}
+	QVector<QVector3D> points;
+	double theta_Increment = M_PI / static_cast<double>(parallels + 1);
+	double gamma_Increment = 2 * M_PI / static_cast<double>(meridians);
+	double theta = -(M_PI / 2.0) + theta_Increment;
+	double gamma = gamma_Increment;
+	int number_of_points = parallels * meridians + 2;
 
-	
+	// Write VTK header
+	fprintf(file, "# vtk DataFile Version 3.0\nvtk output\nASCII\nDATASET POLYDATA\nPOINTS %d float\n", number_of_points);
+	fprintf(file, "0 0 %d\n", -radius);
 
+	points.push_back(QVector3D(0, 0, -radius));
+
+	for (int i = 1; i <= meridians; i++) {
+		gamma = gamma_Increment;
+		for (int j = 0; j < parallels; j++) {
+			double x = radius * cos(theta) * cos(gamma);
+			double y = radius * cos(theta) * sin(gamma);
+			double z = radius * sin(theta);
+			fprintf(file, "%f %f %f\n", x, y, z);
+			points.push_back(QVector3D(x, y, z));
+			gamma += gamma_Increment;
+		}
+		theta += theta_Increment;
+	}
+
+	points.push_back(QVector3D(0, 0, radius));
+	fprintf(file, "0 0 %d\n", radius);
+
+	// Calculate number of faces
+	int faces;
+	if (meridians == 1) {
+		faces = parallels * (meridians + 1);
+	}
+	else {
+		faces = 2 * parallels * meridians;
+	}
+
+	// Write polygons
+	fprintf(file, "POLYGONS %d %d\n", faces, 4 * faces);
+
+	// Write lower triangles
+	for (int i = 1; i < parallels; i++) {
+		fprintf(file, "3 0 %d %d\n", i, i + 1);
+	}
+	fprintf(file, "3 0 %d 1\n", parallels);
+
+	for (int i = 0; i < meridians - 1; i++) {
+		for (int j = 1 + i * parallels; j < parallels * (i + 1); j++) {
+			fprintf(file, "3 %d %d %d\n", j, j + parallels, j + 1 + parallels);
+			fprintf(file, "3 %d %d %d\n", j, j + parallels + 1, j + 1);
+		}
+		fprintf(file, "3 %d %d %d\n", parallels * (i + 1), parallels * (i + 2), parallels * (i + 1) + 1);
+		fprintf(file, "3 %d %d %d\n", parallels * (i + 1), 1 + parallels * (i + 1), 1 + parallels * i);
+	}
+	// Write upper triangles
+	for (int i = number_of_points - parallels - 1; i < number_of_points - 2; i++) {
+		fprintf(file, "3 %d %d %d\n", number_of_points - 1, i + 1, i);
+	}
+	fprintf(file, "3 %d %d %d\n", number_of_points - 1, number_of_points - 1 - parallels, number_of_points - 2);
+
+	fclose(file);
+	qDebug() << "Sphere generated";
+}
+
+//Slots
+void ViewerWidget::paintEvent(QPaintEvent* event) {
+	QPainter painter(this);
+	QRect area = event->rect();
+	painter.drawImage(area, *img, area);
 }

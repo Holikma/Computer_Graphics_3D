@@ -15,34 +15,35 @@ public:
 	ViewerWidget(QSize imgSize, QWidget* parent = Q_NULLPTR);
 	~ViewerWidget();
 	void resizeWidget(QSize size);
-
 	//Image functions
 	bool setImage(const QImage& inputImg);
 	QImage* getImage() { return img; };
 	bool isEmpty();
 	bool changeSize(int width, int height);
-
 	void setPixel(int x, int y, uchar r, uchar g, uchar b, uchar a = 255);
 	void setPixel(int x, int y, double valR, double valG, double valB, double valA = 1.);
 	void setPixel(int x, int y, const QColor& color);
 	bool isInside(int x, int y) { return (x >= 0 && y >= 0 && x < img->width() && y < img->height()) ? true : false; }
-
 	//Draw functions
 	void drawLine(QPoint start, QPoint end, QColor color, int algType = 0);
 	void setDrawLineBegin(QPoint begin) { drawLineBegin = begin; }
 	QPoint getDrawLineBegin() { return drawLineBegin; }
 	void setDrawLineActivated(bool state) { drawLineActivated = state; }
 	bool getDrawLineActivated() { return drawLineActivated; }
-
 	//Get/Set functions
 	uchar* getData() { return data; }
 	void setDataPtr() { data = img->bits(); }
 	void setPainter() { painter = new QPainter(img); }
-
 	int getImgWidth() { return img->width(); };
 	int getImgHeight() { return img->height(); };
 
-	void Generate(int type, int strany, int polomer, int rovnobezky, int poludniky);
+
+	//Custom functions
+
+	void Generate_Cube_VTK(int length);
+	void Generate_Sphere_VTK(int radius, int meridians, int parallels);
+
+
 	void clear();
 
 public slots:
