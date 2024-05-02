@@ -173,7 +173,9 @@ void ImageViewer::on_pushButtonSetColor_clicked(){
 //Custom Slots
 void ImageViewer::on_pushButtonGenerateCube_clicked() {
 	vW->Generate_Cube_VTK(ui->SpinBox_Length->value());
+	vW->Load_VTK_to_Data();
 }
 void ImageViewer::on_pushButtonGenerateSphere_clicked() {
 	vW->Generate_Sphere_VTK(ui->SpinBox_Radius->value(), ui->SpinBox_Meridians->value(), ui->SpinBox_Parallels->value());
+	vW->Load_VTK_to_Data();
 }

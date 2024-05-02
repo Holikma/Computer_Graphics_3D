@@ -1,5 +1,24 @@
 #pragma once
 #include <QtWidgets>
+#include <iostream>
+
+
+class Data_Structure {
+	private:
+		QVector<QVector3D> points;
+		QVector<QVector3D*> polygons;
+	public:
+		Data_Structure() {};
+		QVector<QVector3D> get_Points() { return points; };
+		QVector<QVector3D*> get_Polygons() { return polygons; };
+		void add_Point(QVector3D point) { points.push_back(point); };
+		void add_Polygon(QVector3D* polygon) { polygons.push_back(polygon); };
+		void Print_Data();
+
+};
+
+
+
 class ViewerWidget :public QWidget {
 	Q_OBJECT
 private:
@@ -10,6 +29,7 @@ private:
 
 	bool drawLineActivated = false;
 	QPoint drawLineBegin = QPoint(0, 0);
+	Data_Structure Object_data;
 
 public:
 	ViewerWidget(QSize imgSize, QWidget* parent = Q_NULLPTR);
@@ -42,6 +62,7 @@ public:
 
 	void Generate_Cube_VTK(int length);
 	void Generate_Sphere_VTK(int radius, int meridians, int parallels);
+	void Load_VTK_to_Data();
 
 
 	void clear();

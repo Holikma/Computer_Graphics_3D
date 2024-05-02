@@ -1,5 +1,16 @@
 #include   "ViewerWidget.h"
 
+void Data_Structure::Print_Data() {
+	qDebug() << "Points:";
+	for (int i = 0; i < points.size(); i++) {
+		qDebug() << points[i];
+	}
+	qDebug() << "Polygons:";
+	for (int i = 0; i < polygons.size(); i++) {
+		qDebug() << polygons[i][0] << polygons[i][1] << polygons[i][2];
+	}
+}
+
 ViewerWidget::ViewerWidget(QSize imgSize, QWidget* parent): QWidget(parent){
 	setAttribute(Qt::WA_StaticContents);
 	setMouseTracking(true);
@@ -239,6 +250,42 @@ void ViewerWidget::Generate_Sphere_VTK(int radius, int meridians, int parallels)
 
 	fclose(file);
 	qDebug() << "Sphere generated";
+}
+void ViewerWidget::Load_VTK_to_Data() {
+	FILE* file;
+	file = fopen("data.vtk", "r");
+	QTextStream in(file);
+	QString line;
+	while (!line.startsWith("POINTS")) {
+		line = in.readLine();
+	}
+	QStringList list = line.split(" ");
+
+	int points = list[1].toInt();
+	for (int i = 0; i < points; i++) {
+		line = in.readLine();
+		list = line.split(" ");
+		QVector3D point(list[0].toFloat(), list[1].toFloat(), list[2].toFloat());
+		Object_data.add_Point(point);
+	}
+	while (!line.startsWith("POLYGONS")) {
+		line = in.readLine();
+	}
+
+	list = line.split(" ");
+	int number_of_polygons = list[1].toInt();
+	for (int i = 0; i < number_of_polygons; i++) {
+		line = in.readLine();
+		list = line.split(" ");
+		QVector3D* polygon { new QVector3D[3] };
+		for (int j = 0; j < 3; j++) {
+			polygon[j] = Object_data.get_Points()[list[j + 1].toInt()];
+		}
+		Object_data.add_Polygon(polygon);
+	}	
+	Object_data.Print_Data();
+	fclose(file);
+
 }
 
 //Slots
