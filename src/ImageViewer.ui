@@ -171,7 +171,7 @@
         <item row="3" column="1">
          <widget class="QSlider" name="Slider_Meridians">
           <property name="minimum">
-           <number>1</number>
+           <number>0</number>
           </property>
           <property name="maximum">
            <number>25</number>
@@ -180,7 +180,7 @@
            <number>1</number>
           </property>
           <property name="value">
-           <number>1</number>
+           <number>0</number>
           </property>
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
@@ -193,7 +193,7 @@
         <item row="0" column="2">
          <widget class="QSpinBox" name="SpinBox_Length">
           <property name="minimum">
-           <number>150</number>
+           <number>50</number>
           </property>
           <property name="maximum">
            <number>300</number>
@@ -202,7 +202,7 @@
            <number>10</number>
           </property>
           <property name="value">
-           <number>150</number>
+           <number>50</number>
           </property>
          </widget>
         </item>
@@ -251,10 +251,13 @@
         <item row="3" column="2">
          <widget class="QSpinBox" name="SpinBox_Meridians">
           <property name="minimum">
-           <number>1</number>
+           <number>0</number>
           </property>
           <property name="maximum">
            <number>25</number>
+          </property>
+          <property name="value">
+           <number>0</number>
           </property>
          </widget>
         </item>
@@ -277,10 +280,13 @@
         <item row="1" column="2">
          <widget class="QSpinBox" name="SpinBox_Parallels">
           <property name="minimum">
-           <number>1</number>
+           <number>0</number>
           </property>
           <property name="maximum">
            <number>25</number>
+          </property>
+          <property name="value">
+           <number>0</number>
           </property>
          </widget>
         </item>
@@ -316,7 +322,7 @@
         <item row="0" column="1">
          <widget class="QSlider" name="Slider_Length">
           <property name="minimum">
-           <number>150</number>
+           <number>50</number>
           </property>
           <property name="maximum">
            <number>300</number>
@@ -344,7 +350,7 @@
            <string/>
           </property>
           <property name="minimum">
-           <number>1</number>
+           <number>0</number>
           </property>
           <property name="maximum">
            <number>25</number>
@@ -356,7 +362,7 @@
            <number>1</number>
           </property>
           <property name="value">
-           <number>1</number>
+           <number>0</number>
           </property>
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
@@ -374,18 +380,44 @@
        <property name="title">
         <string>Zenit &amp; Azimut</string>
        </property>
-       <layout class="QVBoxLayout" name="verticalLayout_3">
-        <item>
-         <widget class="QSlider" name="horizontalSlider_5">
+       <layout class="QGridLayout" name="gridLayout_5">
+        <item row="1" column="0">
+         <widget class="QSlider" name="Slider_Zenit">
+          <property name="minimum">
+           <number>-90</number>
+          </property>
+          <property name="maximum">
+           <number>90</number>
+          </property>
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
          </widget>
         </item>
-        <item>
-         <widget class="QSlider" name="horizontalSlider_6">
+        <item row="2" column="0">
+         <widget class="QSlider" name="Slider_Azimut">
+          <property name="maximum">
+           <number>360</number>
+          </property>
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QSpinBox" name="SpinBox_Zenit">
+          <property name="minimum">
+           <number>-90</number>
+          </property>
+          <property name="maximum">
+           <number>90</number>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="QSpinBox" name="SpinBox_Azimut">
+          <property name="maximum">
+           <number>360</number>
           </property>
          </widget>
         </item>
@@ -398,18 +430,18 @@
         <string>Vision settings</string>
        </property>
        <layout class="QGridLayout" name="gridLayout_4">
-        <item row="1" column="1">
-         <widget class="QRadioButton" name="radioButton_2">
-          <property name="text">
-           <string>Perespective</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="0">
-         <widget class="QRadioButton" name="radioButton">
-          <property name="text">
-           <string>Parrarel</string>
-          </property>
+        <item row="0" column="0" colspan="2">
+         <widget class="QComboBox" name="comboBoxVision">
+          <item>
+           <property name="text">
+            <string>Parallel</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Perspective</string>
+           </property>
+          </item>
          </widget>
         </item>
        </layout>
@@ -422,20 +454,34 @@
        </property>
        <layout class="QGridLayout" name="gridLayout_3">
         <item row="0" column="0">
-         <widget class="QSlider" name="horizontalSlider_7">
+         <widget class="QSlider" name="Slider_Distance">
+          <property name="maximum">
+           <number>1000</number>
+          </property>
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
          </widget>
         </item>
         <item row="0" column="1">
-         <widget class="QSpinBox" name="spinBox"/>
+         <widget class="QSpinBox" name="SpinBox_Distance">
+          <property name="maximum">
+           <number>1000</number>
+          </property>
+         </widget>
         </item>
         <item row="1" column="0" colspan="2">
-         <widget class="QCheckBox" name="checkBox">
-          <property name="text">
-           <string>Wireframe</string>
-          </property>
+         <widget class="QComboBox" name="comboBoxFrame">
+          <item>
+           <property name="text">
+            <string>Display Wireframed</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Display Colored</string>
+           </property>
+          </item>
          </widget>
         </item>
        </layout>

@@ -14,6 +14,7 @@ class Data_Structure {
 		void add_Point(QVector3D point) { points.push_back(point); };
 		void add_Polygon(QVector3D* polygon) { polygons.push_back(polygon); };
 		void Print_Data();
+		void Clear_Data();
 
 };
 
@@ -59,11 +60,19 @@ public:
 
 
 	//Custom functions
-
+	Data_Structure* get_Object_Data() { return &Object_data; };
+	void DDALine(QPoint start, QPoint end, QColor color);
+	void Sutherland_Hodgeman(QVector<QPoint> triangle, QColor color);
 	void Generate_Cube_VTK(int length);
 	void Generate_Sphere_VTK(int radius, int meridians, int parallels);
-	void Load_VTK_to_Data();
+	void Generate_Object(int length,  int meridians, int parallels, int radius);
+	void Visualize_Object(int distance, int vision, int zenit, int azimut, int frame);
 
+	void Load_VTK_to_Data();
+	void Perspective_Projection(double distance, double zenit, double azimut);
+	void Parallel_Projection(double distance, double zenit, double azimut);
+	void Wireframe_Display(double distance, int perspective, double zenit, double azimut);
+	void zBuffer_Display(double distance, int perspective, double zenit, double azimut);
 
 	void clear();
 

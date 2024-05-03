@@ -116,6 +116,14 @@ void ImageViewer::Connect_Sliders_to_SpinBoxes() {
 	connect(ui->Slider_Length, SIGNAL(valueChanged(int)), ui->SpinBox_Length, SLOT(setValue(int)));
 	connect(ui->SpinBox_Length, SIGNAL(valueChanged(int)), ui->Slider_Length, SLOT(setValue(int)));
 
+	connect(ui->Slider_Zenit, SIGNAL(valueChanged(int)), ui->SpinBox_Zenit, SLOT(setValue(int)));
+	connect(ui->SpinBox_Zenit, SIGNAL(valueChanged(int)), ui->Slider_Zenit, SLOT(setValue(int)));
+	
+	connect(ui->Slider_Azimut, SIGNAL(valueChanged(int)), ui->SpinBox_Azimut, SLOT(setValue(int)));
+	connect(ui->SpinBox_Azimut, SIGNAL(valueChanged(int)), ui->Slider_Azimut, SLOT(setValue(int)));
+
+	connect(ui->Slider_Distance, SIGNAL(valueChanged(int)), ui->SpinBox_Distance, SLOT(setValue(int)));
+	connect(ui->SpinBox_Distance, SIGNAL(valueChanged(int)), ui->Slider_Distance, SLOT(setValue(int)));
 }
 
 //Slots
@@ -172,10 +180,53 @@ void ImageViewer::on_pushButtonSetColor_clicked(){
 
 //Custom Slots
 void ImageViewer::on_pushButtonGenerateCube_clicked() {
+	vW->get_Object_Data()->Clear_Data();
 	vW->Generate_Cube_VTK(ui->SpinBox_Length->value());
 	vW->Load_VTK_to_Data();
+	vW->Wireframe_Display(ui->SpinBox_Distance->value(), ui->comboBoxVision->currentIndex(), ui->SpinBox_Zenit->value(), ui->SpinBox_Azimut->value());
 }
 void ImageViewer::on_pushButtonGenerateSphere_clicked() {
 	vW->Generate_Sphere_VTK(ui->SpinBox_Radius->value(), ui->SpinBox_Meridians->value(), ui->SpinBox_Parallels->value());
+	vW->get_Object_Data()->Clear_Data();
 	vW->Load_VTK_to_Data();
+	vW->Wireframe_Display(ui->SpinBox_Distance->value(), ui->comboBoxVision->currentIndex(), ui->SpinBox_Zenit->value(), ui->SpinBox_Azimut->value());
+}
+//Crate object Slots
+
+
+void ImageViewer::on_Slider_Meridians_valueChanged(int value) {
+	vW->Generate_Object(ui->SpinBox_Length->value(), value, ui->SpinBox_Parallels->value(), ui->SpinBox_Radius->value());
+	vW->Visualize_Object(ui->SpinBox_Distance->value(), ui->comboBoxVision->currentIndex(), ui->SpinBox_Zenit->value(), ui->SpinBox_Azimut->value(), ui->comboBoxFrame->currentIndex());
+}
+
+void ImageViewer::on_Slider_Parallels_valueChanged(int value) {
+	vW->Generate_Object(ui->SpinBox_Length->value(), ui->SpinBox_Meridians->value(), value, ui->SpinBox_Radius->value());
+	vW->Visualize_Object(ui->SpinBox_Distance->value(), ui->comboBoxVision->currentIndex(), ui->SpinBox_Zenit->value(), ui->SpinBox_Azimut->value(), ui->comboBoxFrame->currentIndex());
+}
+
+void ImageViewer::on_Slider_Radius_valueChanged(int value) {
+	vW->Generate_Object(ui->SpinBox_Length->value(), ui->SpinBox_Meridians->value(), ui->SpinBox_Parallels->value(), value);
+	vW->Visualize_Object(ui->SpinBox_Distance->value(), ui->comboBoxVision->currentIndex(), ui->SpinBox_Zenit->value(), ui->SpinBox_Azimut->value(), ui->comboBoxFrame->currentIndex());
+}
+
+void ImageViewer::on_Slider_Length_valueChanged(int value) {
+	vW->Generate_Object(value, ui->SpinBox_Meridians->value(), ui->SpinBox_Parallels->value(), ui->SpinBox_Radius->value());
+	vW->Visualize_Object(ui->SpinBox_Distance->value(), ui->comboBoxVision->currentIndex(), ui->SpinBox_Zenit->value(), ui->SpinBox_Azimut->value(), ui->comboBoxFrame->currentIndex());
+}
+
+//Visualize object Slots
+void ImageViewer::on_Slider_Zenit_valueChanged(int value) {
+	vW->Visualize_Object(ui->SpinBox_Distance->value(), ui->comboBoxVision->currentIndex(), value, ui->SpinBox_Azimut->value(), ui->comboBoxFrame->currentIndex());
+}
+
+void ImageViewer::on_Slider_Azimut_valueChanged(int value) {
+	vW->Visualize_Object(ui->SpinBox_Distance->value(), ui->comboBoxVision->currentIndex(), ui->SpinBox_Zenit->value(), value, ui->comboBoxFrame->currentIndex());
+}
+
+void ImageViewer::on_Slider_Distance_valueChanged(int value) {
+	vW->Visualize_Object(value, ui->comboBoxVision->currentIndex(), ui->SpinBox_Zenit->value(), ui->SpinBox_Azimut->value(), ui->comboBoxFrame->currentIndex());
+}
+
+void ImageViewer::on_comboBoxVision_currentIndexChanged(int index) {
+	vW->Visualize_Object(ui->SpinBox_Distance->value(), index, ui->SpinBox_Zenit->value(), ui->SpinBox_Azimut->value(), ui->comboBoxFrame->currentIndex());
 }

@@ -53,4 +53,12 @@ private slots:
 	void on_pushButtonSetColor_clicked();
 	void on_pushButtonGenerateCube_clicked();
 	void on_pushButtonGenerateSphere_clicked();
+	void on_Slider_Zenit_valueChanged(int value);
+	void on_Slider_Azimut_valueChanged(int value);
+	void on_Slider_Distance_valueChanged(int value);
+	void on_Slider_Meridians_valueChanged(int value);
+	void on_Slider_Parallels_valueChanged(int value);
+	void on_Slider_Radius_valueChanged(int value);
+	void on_Slider_Length_valueChanged(int value);
+	void on_comboBoxVision_currentIndexChanged(int index);
 };

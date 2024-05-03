@@ -10,6 +10,10 @@ void Data_Structure::Print_Data() {
 		qDebug() << polygons[i][0] << polygons[i][1] << polygons[i][2];
 	}
 }
+void Data_Structure::Clear_Data() {
+	points.clear();
+	polygons.clear();
+}
 
 ViewerWidget::ViewerWidget(QSize imgSize, QWidget* parent): QWidget(parent){
 	setAttribute(Qt::WA_StaticContents);
@@ -125,6 +129,81 @@ void ViewerWidget::drawLine(QPoint start, QPoint end, QColor color, int algType)
 
 	update();
 }
+void ViewerWidget::DDALine(QPoint start, QPoint end, QColor color) {
+	float dx = end.x() - start.x();
+	float dy = end.y() - start.y();
+
+	// Calculate the number of steps
+	float steps = abs(dx) > abs(dy) ? abs(dx) : abs(dy);
+
+	// Increment for each step
+	float xinc = dx / steps;
+	float yinc = dy / steps;
+
+	float x = start.x();
+	float y = start.y();
+
+	for (int i = 0; i < steps; i++) {
+		// Check if coordinates are within the clipping region
+		if (isInside(round(x), round(y))) {
+			setPixel(round(x), round(y), color);
+		}
+
+		x += xinc;
+		y += yinc;
+	}
+}
+void ViewerWidget::Sutherland_Hodgeman(QVector<QPoint> triangle, QColor color) {
+	QVector<QPoint> W; // Initialize a vector to hold the vertices of the clipped polygon
+	QVector<QPoint> polygon = triangle;
+	int edges[4] = { 0,0,-(img->width()-1),-(img->height() - 1)};
+
+	for (int j = 0; j < 4; j++) {
+		if (polygon.size() == 0) {
+			break;
+		}
+		QPoint S = polygon[polygon.size() - 1]; // Initialize S to the last vertex
+		double xmin = edges[j];
+		for (int i = 0; i < polygon.size(); i++) {
+			QPoint Vi = polygon[i];
+
+			if (Vi.x() >= xmin) {
+				if (S.x() >= xmin) {
+					W.append(Vi);
+				}
+				else {
+					// Calculate the intersection point P between the clipping edge and the line segment formed by S and Vi
+					QPoint P = QPoint(xmin, S.y() + (xmin - S.x()) * (Vi.y() - S.y()) / (double)(Vi.x() - S.x()));
+					W.append(P);
+					W.append(Vi);
+				}
+			}
+			else {
+				if (S.x() >= xmin) {
+					QPoint P = QPoint(xmin, S.y() + (xmin - S.x()) * (Vi.y() - S.y()) / (double)(Vi.x() - S.x()));
+					W.append(P);
+				}
+			}
+			S = Vi;
+		}
+		polygon = W;
+		W.clear();
+		// Rotate the polygon clockwise to handle the next clipping edge
+		for (int k = 0; k < polygon.size(); k++) {
+			QPoint swap = polygon[k];
+			polygon[k].setX(swap.y());
+			polygon[k].setY(-swap.x());
+		}
+	}
+
+	for (int i = 0; i < polygon.size() - 1; i++) {
+		DDALine(polygon[i], polygon[i + 1], color);
+	}
+	if (polygon.size() > 1) {
+		DDALine(polygon[polygon.size() - 1], polygon[0], color);
+	}
+	update();
+}
 
 void ViewerWidget::clear() {
 	img->fill(Qt::white);
@@ -179,6 +258,7 @@ void ViewerWidget::Generate_Cube_VTK(int length) {
 	qDebug() << "Cube generated";
 	fclose(file);
 }
+
 void ViewerWidget::Generate_Sphere_VTK(int radius, int meridians, int parallels) {
 	FILE* file;
 	std::string filename = "data.vtk";
@@ -188,8 +268,8 @@ void ViewerWidget::Generate_Sphere_VTK(int radius, int meridians, int parallels)
 		return;
 	}
 	QVector<QVector3D> points;
-	double theta_Increment = M_PI / static_cast<double>(parallels + 1);
-	double gamma_Increment = 2 * M_PI / static_cast<double>(meridians);
+	double theta_Increment = M_PI / static_cast<double>(meridians + 1);
+	double gamma_Increment = 2 * M_PI / static_cast<double>(parallels);
 	double theta = -(M_PI / 2.0) + theta_Increment;
 	double gamma = gamma_Increment;
 	int number_of_points = parallels * meridians + 2;
@@ -233,15 +313,18 @@ void ViewerWidget::Generate_Sphere_VTK(int radius, int meridians, int parallels)
 		fprintf(file, "3 0 %d %d\n", i, i + 1);
 	}
 	fprintf(file, "3 0 %d 1\n", parallels);
-
-	for (int i = 0; i < meridians - 1; i++) {
-		for (int j = 1 + i * parallels; j < parallels * (i + 1); j++) {
-			fprintf(file, "3 %d %d %d\n", j, j + parallels, j + 1 + parallels);
-			fprintf(file, "3 %d %d %d\n", j, j + parallels + 1, j + 1);
+	
+	if (meridians != 1) {
+		for (int i = 0; i < meridians - 1; i++) {
+			for (int j = 1 + i * parallels; j < parallels * (i + 1); j++) {
+				fprintf(file, "3 %d %d %d\n", j, j + parallels, j + 1 + parallels);
+				fprintf(file, "3 %d %d %d\n", j, j + parallels + 1, j + 1);
+			}
+			fprintf(file, "3 %d %d %d\n", parallels * (i + 1), parallels * (i + 2), parallels * (i + 1) + 1);
+			fprintf(file, "3 %d %d %d\n", parallels * (i + 1), 1 + parallels * (i + 1), 1 + parallels * i);
 		}
-		fprintf(file, "3 %d %d %d\n", parallels * (i + 1), parallels * (i + 2), parallels * (i + 1) + 1);
-		fprintf(file, "3 %d %d %d\n", parallels * (i + 1), 1 + parallels * (i + 1), 1 + parallels * i);
 	}
+	
 	// Write upper triangles
 	for (int i = number_of_points - parallels - 1; i < number_of_points - 2; i++) {
 		fprintf(file, "3 %d %d %d\n", number_of_points - 1, i + 1, i);
@@ -251,7 +334,10 @@ void ViewerWidget::Generate_Sphere_VTK(int radius, int meridians, int parallels)
 	fclose(file);
 	qDebug() << "Sphere generated";
 }
+
 void ViewerWidget::Load_VTK_to_Data() {
+	//clear data
+	Object_data.Clear_Data();
 	FILE* file;
 	file = fopen("data.vtk", "r");
 	QTextStream in(file);
@@ -283,8 +369,108 @@ void ViewerWidget::Load_VTK_to_Data() {
 		}
 		Object_data.add_Polygon(polygon);
 	}	
-	Object_data.Print_Data();
 	fclose(file);
+
+}
+
+void ViewerWidget::Generate_Object(int length, int meridians, int parallels, int radius) {
+	clear();
+	Object_data.Clear_Data();
+	if (meridians == 0 && parallels == 0)
+		Generate_Cube_VTK(length);
+	else
+		Generate_Sphere_VTK(radius, meridians, parallels);
+	Load_VTK_to_Data();
+}
+
+void ViewerWidget::Visualize_Object(int distance, int vision, int zenit, int azimut, int frame) {
+	clear();
+	if (!frame) {
+		Wireframe_Display(distance, vision, zenit * M_PI / 180., azimut * M_PI / 180.);
+	}
+	else {
+		zBuffer_Display(distance, vision, zenit * M_PI / 180., azimut * M_PI / 180.);
+	}
+}
+
+void ViewerWidget::Perspective_Projection(double distance, double zenit, double azimut) {
+	int center_x = img->width() / 2;
+	int center_y = img->height() / 2;
+	QVector<QVector3D> points = Object_data.get_Points();
+	QVector<QVector3D*> polygons = Object_data.get_Polygons();
+
+	// Calculate camera orientation vectors
+	QVector3D n = QVector3D(sin(zenit) * sin(azimut), sin(zenit) * cos(azimut), cos(zenit));
+	QVector3D u = QVector3D(sin(zenit + M_PI_2) * sin(azimut), sin(zenit + M_PI_2) * cos(azimut), cos(zenit + M_PI_2));
+	QVector3D v = QVector3D::crossProduct(n, u);
+
+	for (int i = 0; i < polygons.size(); i++) {
+		QVector3D* polygon = polygons[i];
+		QVector<QPoint> projectedPolygon;
+
+		// Transform vertices to camera space
+		QVector3D vertex1 = polygon[0];
+		QVector3D vertex2 = polygon[1];
+		QVector3D vertex3 = polygon[2];
+		QVector3D p1(QVector3D::dotProduct(vertex1, v), QVector3D::dotProduct(vertex1, u), QVector3D::dotProduct(vertex1, n));
+		QVector3D p2(QVector3D::dotProduct(vertex2, v), QVector3D::dotProduct(vertex2, u), QVector3D::dotProduct(vertex2, n));
+		QVector3D p3(QVector3D::dotProduct(vertex3, v), QVector3D::dotProduct(vertex3, u), QVector3D::dotProduct(vertex3, n));
+		projectedPolygon.push_back(QPoint(distance * p1.x() / (distance - p1.z()) + center_x, distance * p1.y() / (distance - p1.z()) + center_y));
+		projectedPolygon.push_back(QPoint(distance * p2.x() / (distance - p2.z()) + center_x, distance * p2.y() / (distance - p2.z()) + center_y));
+		projectedPolygon.push_back(QPoint(distance * p3.x() / (distance - p3.z()) + center_x, distance * p3.y() / (distance - p3.z()) + center_y));
+
+		// Draw projected polygon
+		Sutherland_Hodgeman(projectedPolygon, Qt::black);
+	}
+	update();
+}
+
+void ViewerWidget::Parallel_Projection(double distance, double zenit, double azimut) {
+	int center_x = img->width() / 2;
+	int center_y = img->height() / 2;
+	QVector<QVector3D> points = Object_data.get_Points();
+	QVector<QVector3D*> polygons = Object_data.get_Polygons();
+
+	// Calculate camera orientation vectors
+	QVector3D n = QVector3D(sin(zenit) * sin(azimut), sin(zenit) * cos(azimut), cos(zenit));
+	QVector3D u = QVector3D(sin(zenit + M_PI_2) * sin(azimut), sin(zenit + M_PI_2) * cos(azimut), cos(zenit + M_PI_2));
+	QVector3D v = QVector3D::crossProduct(n, u);
+
+	for (int i = 0; i < polygons.size(); i++) {
+		QVector3D* polygon = polygons[i];
+		QVector<QPoint> projectedPolygon;
+
+		// Transform vertices to camera space
+		
+		QVector3D vertex1 = polygon[0];
+		QVector3D vertex2 = polygon[1];
+		QVector3D vertex3 = polygon[2];
+		QVector3D p1(QVector3D::dotProduct(vertex1, v), QVector3D::dotProduct(vertex1, u), QVector3D::dotProduct(vertex1, n));
+		QVector3D p2(QVector3D::dotProduct(vertex2, v), QVector3D::dotProduct(vertex2, u), QVector3D::dotProduct(vertex2, n));
+		QVector3D p3(QVector3D::dotProduct(vertex3, v), QVector3D::dotProduct(vertex3, u), QVector3D::dotProduct(vertex3, n));
+		projectedPolygon.push_back(QPoint(p1.x() + center_x, p1.y() + center_y));
+		projectedPolygon.push_back(QPoint(p2.x() + center_x, p2.y() + center_y));
+		projectedPolygon.push_back(QPoint(p3.x() + center_x, p3.y() + center_y));
+		
+
+		// Draw projected polygon
+		Sutherland_Hodgeman(projectedPolygon, Qt::black);
+	}
+	update();
+}
+
+void ViewerWidget::Wireframe_Display(double distance, int vision, double zenit, double azimut) {
+	switch (vision) {
+		case 0:
+			Parallel_Projection(distance, zenit, azimut);
+			break;
+		case 1:
+			Perspective_Projection(distance, zenit, azimut);
+			break;
+	}
+}
+
+void ViewerWidget::zBuffer_Display(double distance, int vision, double zenit, double azimut) {
 
 }
 
