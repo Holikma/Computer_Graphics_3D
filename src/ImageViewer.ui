@@ -168,30 +168,22 @@
         <string>Generating objects</string>
        </property>
        <layout class="QGridLayout" name="gridLayout_2">
-        <item row="3" column="1">
-         <widget class="QSlider" name="Slider_Meridians">
-          <property name="minimum">
-           <number>0</number>
-          </property>
-          <property name="maximum">
-           <number>25</number>
-          </property>
-          <property name="pageStep">
-           <number>1</number>
-          </property>
-          <property name="value">
-           <number>0</number>
-          </property>
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="tickInterval">
-           <number>1</number>
+        <item row="0" column="0">
+         <widget class="QLabel" name="label">
+          <property name="text">
+           <string>Length of Edge:</string>
           </property>
          </widget>
         </item>
-        <item row="0" column="2">
-         <widget class="QSpinBox" name="SpinBox_Length">
+        <item row="3" column="0">
+         <widget class="QLabel" name="label_3">
+          <property name="text">
+           <string>Meridians:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QSlider" name="Slider_Length">
           <property name="minimum">
            <number>50</number>
           </property>
@@ -199,17 +191,47 @@
            <number>300</number>
           </property>
           <property name="singleStep">
-           <number>10</number>
+           <number>1</number>
           </property>
-          <property name="value">
-           <number>50</number>
+          <property name="tracking">
+           <bool>true</bool>
+          </property>
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="tickPosition">
+           <enum>QSlider::NoTicks</enum>
           </property>
          </widget>
         </item>
-        <item row="0" column="0">
-         <widget class="QLabel" name="label">
-          <property name="text">
-           <string>Length of Edge:</string>
+        <item row="1" column="1">
+         <widget class="QSlider" name="Slider_Parallels">
+          <property name="toolTip">
+           <string/>
+          </property>
+          <property name="whatsThis">
+           <string/>
+          </property>
+          <property name="minimum">
+           <number>3</number>
+          </property>
+          <property name="maximum">
+           <number>25</number>
+          </property>
+          <property name="singleStep">
+           <number>1</number>
+          </property>
+          <property name="pageStep">
+           <number>1</number>
+          </property>
+          <property name="value">
+           <number>3</number>
+          </property>
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="tickInterval">
+           <number>0</number>
           </property>
          </widget>
         </item>
@@ -234,10 +256,99 @@
           </item>
          </layout>
         </item>
+        <item row="4" column="2">
+         <widget class="QSpinBox" name="SpinBox_Radius">
+          <property name="minimum">
+           <number>150</number>
+          </property>
+          <property name="maximum">
+           <number>300</number>
+          </property>
+          <property name="singleStep">
+           <number>1</number>
+          </property>
+          <property name="stepType">
+           <enum>QAbstractSpinBox::DefaultStepType</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="1">
+         <widget class="QSlider" name="Slider_Radius">
+          <property name="minimum">
+           <number>150</number>
+          </property>
+          <property name="maximum">
+           <number>300</number>
+          </property>
+          <property name="singleStep">
+           <number>1</number>
+          </property>
+          <property name="pageStep">
+           <number>10</number>
+          </property>
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="tickInterval">
+           <number>10</number>
+          </property>
+         </widget>
+        </item>
         <item row="1" column="0">
          <widget class="QLabel" name="label_2">
           <property name="text">
            <string>Parralels:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="2">
+         <widget class="QSpinBox" name="SpinBox_Parallels">
+          <property name="minimum">
+           <number>3</number>
+          </property>
+          <property name="maximum">
+           <number>25</number>
+          </property>
+          <property name="value">
+           <number>3</number>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="1">
+         <widget class="QSlider" name="Slider_Meridians">
+          <property name="minimum">
+           <number>1</number>
+          </property>
+          <property name="maximum">
+           <number>25</number>
+          </property>
+          <property name="pageStep">
+           <number>1</number>
+          </property>
+          <property name="value">
+           <number>1</number>
+          </property>
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="tickInterval">
+           <number>1</number>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="2">
+         <widget class="QSpinBox" name="SpinBox_Length">
+          <property name="minimum">
+           <number>50</number>
+          </property>
+          <property name="maximum">
+           <number>300</number>
+          </property>
+          <property name="singleStep">
+           <number>1</number>
+          </property>
+          <property name="value">
+           <number>50</number>
           </property>
          </widget>
         </item>
@@ -251,124 +362,13 @@
         <item row="3" column="2">
          <widget class="QSpinBox" name="SpinBox_Meridians">
           <property name="minimum">
-           <number>0</number>
-          </property>
-          <property name="maximum">
-           <number>25</number>
-          </property>
-          <property name="value">
-           <number>0</number>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="2">
-         <widget class="QSpinBox" name="SpinBox_Radius">
-          <property name="minimum">
-           <number>150</number>
-          </property>
-          <property name="maximum">
-           <number>300</number>
-          </property>
-          <property name="singleStep">
-           <number>10</number>
-          </property>
-          <property name="stepType">
-           <enum>QAbstractSpinBox::DefaultStepType</enum>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="2">
-         <widget class="QSpinBox" name="SpinBox_Parallels">
-          <property name="minimum">
-           <number>0</number>
-          </property>
-          <property name="maximum">
-           <number>25</number>
-          </property>
-          <property name="value">
-           <number>0</number>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="1">
-         <widget class="QSlider" name="Slider_Radius">
-          <property name="minimum">
-           <number>150</number>
-          </property>
-          <property name="maximum">
-           <number>300</number>
-          </property>
-          <property name="singleStep">
-           <number>10</number>
-          </property>
-          <property name="pageStep">
-           <number>10</number>
-          </property>
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="tickInterval">
-           <number>10</number>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="0">
-         <widget class="QLabel" name="label_3">
-          <property name="text">
-           <string>Meridians:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="1">
-         <widget class="QSlider" name="Slider_Length">
-          <property name="minimum">
-           <number>50</number>
-          </property>
-          <property name="maximum">
-           <number>300</number>
-          </property>
-          <property name="singleStep">
-           <number>10</number>
-          </property>
-          <property name="tracking">
-           <bool>true</bool>
-          </property>
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="tickPosition">
-           <enum>QSlider::NoTicks</enum>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="1">
-         <widget class="QSlider" name="Slider_Parallels">
-          <property name="toolTip">
-           <string/>
-          </property>
-          <property name="whatsThis">
-           <string/>
-          </property>
-          <property name="minimum">
-           <number>0</number>
-          </property>
-          <property name="maximum">
-           <number>25</number>
-          </property>
-          <property name="singleStep">
-           <number>10</number>
-          </property>
-          <property name="pageStep">
            <number>1</number>
           </property>
+          <property name="maximum">
+           <number>25</number>
+          </property>
           <property name="value">
-           <number>0</number>
-          </property>
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="tickInterval">
-           <number>0</number>
+           <number>1</number>
           </property>
          </widget>
         </item>
@@ -450,27 +450,20 @@
      <item>
       <widget class="QGroupBox" name="groupBox_7">
        <property name="title">
-        <string>Camera and Frame</string>
+        <string>Camera Frame Shading</string>
        </property>
        <layout class="QGridLayout" name="gridLayout_3">
-        <item row="0" column="0">
-         <widget class="QSlider" name="Slider_Distance">
-          <property name="maximum">
-           <number>1000</number>
-          </property>
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-         </widget>
-        </item>
         <item row="0" column="1">
          <widget class="QSpinBox" name="SpinBox_Distance">
           <property name="maximum">
            <number>1000</number>
           </property>
+          <property name="value">
+           <number>500</number>
+          </property>
          </widget>
         </item>
-        <item row="1" column="0" colspan="2">
+        <item row="2" column="0" colspan="2">
          <widget class="QComboBox" name="comboBoxFrame">
           <item>
            <property name="text">
@@ -484,21 +477,35 @@
           </item>
          </widget>
         </item>
+        <item row="0" column="0">
+         <widget class="QSlider" name="Slider_Distance">
+          <property name="maximum">
+           <number>1000</number>
+          </property>
+          <property name="value">
+           <number>500</number>
+          </property>
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="0" colspan="2">
+         <widget class="QComboBox" name="comboBoxShading">
+          <item>
+           <property name="text">
+            <string>Constant</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Gouraud</string>
+           </property>
+          </item>
+         </widget>
+        </item>
        </layout>
       </widget>
-     </item>
-     <item>
-      <spacer name="verticalSpacer">
-       <property name="orientation">
-        <enum>Qt::Vertical</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>20</width>
-         <height>40</height>
-        </size>
-       </property>
-      </spacer>
      </item>
     </layout>
    </widget>
@@ -538,23 +545,41 @@
          </widget>
         </item>
         <item row="2" column="2">
-         <widget class="QSpinBox" name="spinBox_3"/>
+         <widget class="QSpinBox" name="SpinBox_Y">
+          <property name="maximum">
+           <number>1000</number>
+          </property>
+         </widget>
         </item>
         <item row="2" column="1">
-         <widget class="QSlider" name="Source_Slider_Y">
+         <widget class="QSlider" name="Slider_Source_Y">
+          <property name="maximum">
+           <number>1000</number>
+          </property>
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
          </widget>
         </item>
         <item row="0" column="2">
-         <widget class="QSpinBox" name="spinBox_2"/>
+         <widget class="QSpinBox" name="SpinBox_X">
+          <property name="maximum">
+           <number>1000</number>
+          </property>
+         </widget>
         </item>
         <item row="3" column="2">
-         <widget class="QSpinBox" name="spinBox_4"/>
+         <widget class="QSpinBox" name="SpinBox_Z">
+          <property name="maximum">
+           <number>1000</number>
+          </property>
+         </widget>
         </item>
         <item row="3" column="1">
-         <widget class="QSlider" name="horizontalSlider_10">
+         <widget class="QSlider" name="Slider_Source_Z">
+          <property name="maximum">
+           <number>1000</number>
+          </property>
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
@@ -575,7 +600,10 @@
          </widget>
         </item>
         <item row="0" column="1">
-         <widget class="QSlider" name="Source_Slider_X">
+         <widget class="QSlider" name="Slider_Source_X">
+          <property name="maximum">
+           <number>1000</number>
+          </property>
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
@@ -591,7 +619,10 @@
        </property>
        <layout class="QGridLayout" name="gridLayout_8">
         <item row="0" column="1">
-         <widget class="QSlider" name="horizontalSlider_11">
+         <widget class="QSlider" name="Slider_SColor_R">
+          <property name="maximum">
+           <number>255</number>
+          </property>
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
@@ -605,7 +636,10 @@
          </widget>
         </item>
         <item row="1" column="1">
-         <widget class="QSlider" name="horizontalSlider_12">
+         <widget class="QSlider" name="Slider_SColor_G">
+          <property name="maximum">
+           <number>255</number>
+          </property>
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
@@ -619,10 +653,18 @@
          </widget>
         </item>
         <item row="1" column="2">
-         <widget class="QSpinBox" name="spinBox_6"/>
+         <widget class="QSpinBox" name="SpinBox_SColor_G">
+          <property name="maximum">
+           <number>255</number>
+          </property>
+         </widget>
         </item>
         <item row="0" column="2">
-         <widget class="QSpinBox" name="spinBox_5"/>
+         <widget class="QSpinBox" name="SpinBox_SColor_R">
+          <property name="maximum">
+           <number>255</number>
+          </property>
+         </widget>
         </item>
         <item row="2" column="0">
          <widget class="QLabel" name="label_10">
@@ -632,14 +674,21 @@
          </widget>
         </item>
         <item row="2" column="1">
-         <widget class="QSlider" name="horizontalSlider_13">
+         <widget class="QSlider" name="Slider_SColor_B">
+          <property name="maximum">
+           <number>255</number>
+          </property>
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
          </widget>
         </item>
         <item row="2" column="2">
-         <widget class="QSpinBox" name="spinBox_7"/>
+         <widget class="QSpinBox" name="SpinBox_SColor_B">
+          <property name="maximum">
+           <number>255</number>
+          </property>
+         </widget>
         </item>
        </layout>
       </widget>
@@ -650,10 +699,20 @@
         <string>Ambient Color</string>
        </property>
        <layout class="QGridLayout" name="gridLayout_9">
-        <item row="0" column="0">
-         <widget class="QLabel" name="label_11">
-          <property name="text">
-           <string>R:</string>
+        <item row="2" column="1">
+         <widget class="QSlider" name="Slider_AColor_B">
+          <property name="maximum">
+           <number>255</number>
+          </property>
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="2">
+         <widget class="QSpinBox" name="SpinBox_AColor_G">
+          <property name="maximum">
+           <number>255</number>
           </property>
          </widget>
         </item>
@@ -665,17 +724,31 @@
          </widget>
         </item>
         <item row="0" column="2">
-         <widget class="QSpinBox" name="spinBox_8"/>
-        </item>
-        <item row="1" column="1">
-         <widget class="QSlider" name="horizontalSlider_15">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
+         <widget class="QSpinBox" name="SpinBox_AColor_R">
+          <property name="maximum">
+           <number>255</number>
           </property>
          </widget>
         </item>
-        <item row="0" column="1">
-         <widget class="QSlider" name="horizontalSlider_14">
+        <item row="0" column="0">
+         <widget class="QLabel" name="label_11">
+          <property name="text">
+           <string>R:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="2">
+         <widget class="QSpinBox" name="SpinBox_AColor_B">
+          <property name="maximum">
+           <number>255</number>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QSlider" name="Slider_AColor_G">
+          <property name="maximum">
+           <number>255</number>
+          </property>
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
@@ -688,18 +761,15 @@
           </property>
          </widget>
         </item>
-        <item row="2" column="1">
-         <widget class="QSlider" name="horizontalSlider_16">
+        <item row="0" column="1">
+         <widget class="QSlider" name="Slider_AColor_R">
+          <property name="maximum">
+           <number>255</number>
+          </property>
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
          </widget>
-        </item>
-        <item row="1" column="2">
-         <widget class="QSpinBox" name="spinBox_9"/>
-        </item>
-        <item row="2" column="2">
-         <widget class="QSpinBox" name="spinBox_10"/>
         </item>
        </layout>
       </widget>
@@ -718,14 +788,14 @@
          </widget>
         </item>
         <item row="4" column="2">
-         <widget class="QSlider" name="horizontalSlider_23">
+         <widget class="QSlider" name="Slider_Amb_G">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
          </widget>
         </item>
         <item row="1" column="2">
-         <widget class="QSlider" name="horizontalSlider_18">
+         <widget class="QSlider" name="Slider_Diff_G">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
@@ -739,7 +809,7 @@
          </widget>
         </item>
         <item row="4" column="3">
-         <widget class="QSlider" name="horizontalSlider_25">
+         <widget class="QSlider" name="Slider_Amb_B">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
@@ -760,21 +830,21 @@
          </widget>
         </item>
         <item row="3" column="2">
-         <widget class="QSlider" name="horizontalSlider_22">
+         <widget class="QSlider" name="Slider_Refl_G">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
          </widget>
         </item>
         <item row="3" column="1">
-         <widget class="QSlider" name="horizontalSlider_20">
+         <widget class="QSlider" name="Slider_Refl_R">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
          </widget>
         </item>
         <item row="4" column="1">
-         <widget class="QSlider" name="horizontalSlider_21">
+         <widget class="QSlider" name="Slider_Amb_R">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
@@ -795,21 +865,21 @@
          </widget>
         </item>
         <item row="1" column="3">
-         <widget class="QSlider" name="horizontalSlider_19">
+         <widget class="QSlider" name="Slider_Diff_B">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
          </widget>
         </item>
         <item row="3" column="3">
-         <widget class="QSlider" name="horizontalSlider_24">
+         <widget class="QSlider" name="Slider_Refl_B">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
          </widget>
         </item>
         <item row="1" column="1">
-         <widget class="QSlider" name="horizontalSlider_17">
+         <widget class="QSlider" name="Slider_Diff_R">
           <property name="enabled">
            <bool>true</bool>
           </property>
@@ -831,6 +901,13 @@
          </widget>
         </item>
        </layout>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pushButtonAddLight">
+       <property name="text">
+        <string>Apply Lighting</string>
+       </property>
       </widget>
      </item>
     </layout>

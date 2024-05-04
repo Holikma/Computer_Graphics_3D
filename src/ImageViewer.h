@@ -61,4 +61,6 @@ private slots:
 	void on_Slider_Radius_valueChanged(int value);
 	void on_Slider_Length_valueChanged(int value);
 	void on_comboBoxVision_currentIndexChanged(int index);
+	void on_comboBoxFrame_currentIndexChanged(int index);
+	void on_pushButtonAddLight_clicked();
 };
