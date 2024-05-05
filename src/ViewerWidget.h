@@ -8,17 +8,18 @@ class Data_Structure {
 	private:
 		QVector<QVector3D> points;
 		QVector<QVector3D*> polygons;
-		QVector<QVector<QColor>> colors;
+		QVector<QColor> colors;
 	public:
 		Data_Structure() {};
 		QVector<QVector3D> get_Points() { return points; };
 		QVector<QVector3D*> get_Polygons() { return polygons; };
-		QVector<QVector<QColor>> get_Colors() { return colors; };
+		QVector<QColor> get_Colors() { return colors; };
 		void add_Point(QVector3D point) { points.push_back(point); };
 		void add_Polygon(QVector3D* polygon) { polygons.push_back(polygon); };
-		void add_Color(QVector<QColor> color) { colors.push_back(color); };
+		void add_Color(QColor color) { colors.push_back(color); };
 		void Print_Data();
 		void Clear_Data();
+		void Print_Points();
 
 };
 
@@ -27,19 +28,19 @@ class Light {
 		QVector3D position;
 		QColor color;
 		QColor ambient;
-		QColor POM_Diff;
-		QColor POM_Refl;
-		QColor POM_Amb;
+		QVector<double> POM_Diff;
+		QVector<double>  POM_Refl;
+		QVector<double>  POM_Amb;
 	public:
 		Light() {};
-		Light(QVector3D pos, QColor col, QColor amb, QColor diff, QColor refl, QColor pamb) : position(pos), color(col), ambient(amb), POM_Diff(diff), POM_Refl(refl), POM_Amb(pamb) {};
+		Light(QVector3D pos, QColor col, QColor amb, QVector<double>  diff, QVector<double>  refl, QVector<double>  pamb) : position(pos), color(col), ambient(amb), POM_Diff(diff), POM_Refl(refl), POM_Amb(pamb) {};
 		QVector3D get_Position() { return position; };
 		QColor get_Color() { return color; };
 		QColor get_Ambient() { return ambient; };
-		QColor get_POM_Diff() { return POM_Diff; };
-		QColor get_POM_Reff() { return POM_Refl; };
-		QColor get_POM_Amb() { return POM_Amb; };
-		void Print_Light() { qDebug() << "Position: " << position << " Color: " << color << " Ambient: " << ambient << " Diffuse: " << POM_Diff << " Reflection: " << POM_Refl << " Ambient: " << POM_Amb; };
+		QVector<double>  get_POM_Diff() { return POM_Diff; };
+		QVector<double> get_POM_Reff() { return POM_Refl; };
+		QVector<double>  get_POM_Amb() { return POM_Amb; };
+		const void Print_Light() { qDebug() << "Position: " << position << " Color: " << color << " Ambient: " << ambient << " Diffuse: " << POM_Diff << " Reflection: " << POM_Refl << " Ambient: " << POM_Amb; };
 };
 
 
@@ -90,7 +91,9 @@ public:
 	void Generate_Cube_VTK(int length);
 	void Generate_Sphere_VTK(int radius, int meridians, int parallels);
 	void Generate_Object(int length,  int meridians, int parallels, int radius);
-	void Visualize_Object(int distance, int vision, int zenit, int azimut, int frame, Light bulb, int shading);
+	void Visualize_Object(int distance, int vision, int zenit, int azimut, int frame);
+	void Light_Object(Light light, int distance, int vision, int zenit, int azimut, int frame);
+
 	void Print_Projected_Polygons(QVector<QVector<QVector3D>> Projected_polygons);
 	double interpolateZ(int x, int y, QVector<QVector3D> polygon);
 	bool isInsideTriangle(QVector<QVector3D> triangle, QVector3D P);
@@ -99,8 +102,10 @@ public:
 	QVector<QVector<QVector3D>> Perspective_Projection(double distance, double zenit, double azimut);
 	QVector<QVector<QVector3D>> Parallel_Projection(double distance, double zenit, double azimut);
 	void Wireframe_Display(double distance, int perspective, double zenit, double azimut);
-	void zBuffer_Display(double distance, int perspective, double zenit, double azimut, Light Bulb, int shading);
-	void zBuffer(QVector<QVector<QVector3D>> Projected_polygons, Light bulb, int shading);
+	void zBuffer_Display(double distance, int perspective, double zenit, double azimut);
+	void zBuffer(QVector<QVector<QVector3D>> Projected_polygons);
+	void zBuffer(QVector<QVector<QVector3D>> Projected_polygons, Light bulb);
+	QColor Phong_Model(QVector<QVector3D> polygon, Light bulb);
 	void clear();
 
 public slots:

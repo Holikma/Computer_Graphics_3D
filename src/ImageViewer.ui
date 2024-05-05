@@ -904,11 +904,35 @@
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="pushButtonAddLight">
-       <property name="text">
-        <string>Apply Lighting</string>
+      <spacer name="verticalSpacer">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
        </property>
-      </widget>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>20</width>
+         <height>40</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <layout class="QGridLayout" name="gridLayout_6">
+       <item row="0" column="0">
+        <widget class="QCheckBox" name="checkBoxAddLight">
+         <property name="text">
+          <string>Apply Dynamic Lighting</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QPushButton" name="pushButtonAddLight">
+         <property name="text">
+          <string>Add Light</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </item>
     </layout>
    </widget>

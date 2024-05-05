@@ -1,13 +1,12 @@
 #include   "ViewerWidget.h"
 
 void Data_Structure::Print_Data() {
+	qDebug() << "haha";
+}
+void Data_Structure::Print_Points() {
 	qDebug() << "Points:";
 	for (int i = 0; i < points.size(); i++) {
 		qDebug() << points[i];
-	}
-	qDebug() << "Polygons:";
-	for (int i = 0; i < polygons.size(); i++) {
-		qDebug() << polygons[i][0] << polygons[i][1] << polygons[i][2];
 	}
 }
 void Data_Structure::Clear_Data() {
@@ -211,6 +210,7 @@ void ViewerWidget::clear() {
 }
 //Custom functions
 void ViewerWidget::Generate_Cube_VTK(int length) {
+	Object_data.Clear_Data();
 	length = length / 2;
 	FILE* file;
 	std::string filename = "data.vtk";
@@ -224,21 +224,22 @@ void ViewerWidget::Generate_Cube_VTK(int length) {
 	fprintf(file, "vtk output\n");
 	fprintf(file, "ASCII\n");
 	fprintf(file, "DATASET POLYDATA\n");
-	QVector<QVector3D> body;
 	fprintf(file, "POINTS %d int\n", 8);
-	QVector<QVector3D> points;
-	//Generate points for cube with center of cube be  0 0 0 
-	points.push_back(QVector3D(-length, -length, -length));
-	points.push_back(QVector3D(length, -length, -length));
-	points.push_back(QVector3D(length, length, -length));
-	points.push_back(QVector3D(-length, length, -length));
-	points.push_back(QVector3D(-length, -length, length));
-	points.push_back(QVector3D(length, -length, length));
-	points.push_back(QVector3D(length, length, length));
-	points.push_back(QVector3D(-length, length, length));
+
+
+	Object_data.add_Point(QVector3D(-length, -length, -length));
+	Object_data.add_Point(QVector3D(length, -length, -length));
+	Object_data.add_Point(QVector3D(length, length, -length));
+	Object_data.add_Point(QVector3D(-length, length, -length));
+	Object_data.add_Point(QVector3D(-length, -length, length));
+	Object_data.add_Point(QVector3D(length, -length, length));
+	Object_data.add_Point(QVector3D(length, length, length));
+	Object_data.add_Point(QVector3D(-length, length, length));
+
 
 	for (int i = 0; i < 8; i++) {
-		fprintf(file, "%d %d %d\n", (int)points[i].x(), (int)points[i].y(), (int)points[i].z());
+		QVector3D point = Object_data.get_Points()[i];
+		fprintf(file, "%d %d %d\n", (int)point.x(), (int)point.y(), (int)point.z());
 	}
 	fprintf(file, "POLYGONS 12 48\n");
 	fprintf(file, "3 0 1 5\n");
@@ -257,7 +258,6 @@ void ViewerWidget::Generate_Cube_VTK(int length) {
 	qDebug() << "Cube generated";
 	fclose(file);
 }
-
 void ViewerWidget::Generate_Sphere_VTK(int radius, int meridians, int parallels) {
 	FILE* file;
 	std::string filename = "data.vtk";
@@ -266,7 +266,6 @@ void ViewerWidget::Generate_Sphere_VTK(int radius, int meridians, int parallels)
 		qDebug() << "Error opening file";
 		return;
 	}
-	QVector<QVector3D> points;
 	double theta_Increment = M_PI / static_cast<double>(meridians + 1);
 	double gamma_Increment = 2 * M_PI / static_cast<double>(parallels);
 	double theta = -(M_PI / 2.0) + theta_Increment;
@@ -277,7 +276,7 @@ void ViewerWidget::Generate_Sphere_VTK(int radius, int meridians, int parallels)
 	fprintf(file, "# vtk DataFile Version 3.0\nvtk output\nASCII\nDATASET POLYDATA\nPOINTS %d float\n", number_of_points);
 	fprintf(file, "0 0 %d\n", -radius);
 
-	points.push_back(QVector3D(0, 0, -radius));
+	Object_data.add_Point(QVector3D(0, 0, -radius));
 
 	for (int i = 1; i <= meridians; i++) {
 		gamma = gamma_Increment;
@@ -286,13 +285,13 @@ void ViewerWidget::Generate_Sphere_VTK(int radius, int meridians, int parallels)
 			double y = radius * cos(theta) * sin(gamma);
 			double z = radius * sin(theta);
 			fprintf(file, "%f %f %f\n", x, y, z);
-			points.push_back(QVector3D(x, y, z));
+			Object_data.add_Point(QVector3D(x, y, z));
 			gamma += gamma_Increment;
 		}
 		theta += theta_Increment;
 	}
 
-	points.push_back(QVector3D(0, 0, radius));
+	Object_data.add_Point(QVector3D(0, 0, radius));
 	fprintf(file, "0 0 %d\n", radius);
 
 	// Calculate number of faces
@@ -367,15 +366,10 @@ void ViewerWidget::Load_VTK_to_Data() {
 		}
 		Object_data.add_Polygon(polygon);
 	}
-	
-	for (int i = 0; i < number_of_polygons; i++) {
-		QVector<QColor> color;
-		color.push_back(QColor(rand() % 256, rand() % 256, rand() % 256));
-		color.push_back(QColor(rand() % 256, rand() % 256, rand() % 256));
-		color.push_back(QColor(rand() % 256, rand() % 256, rand() % 256));
-		Object_data.add_Color(color);
+	//fill vector with random colors
+	for (int i = 0; i < Object_data.get_Points().size(); i++) {
+		Object_data.add_Color(QColor(rand() % 256, rand() % 256, rand() % 256));
 	}
-
 	fclose(file);
 
 }
@@ -464,21 +458,30 @@ bool ViewerWidget::isOnEdge(QVector<QVector3D> triangle, QVector3D P) {
 }
 void ViewerWidget::Generate_Object(int length, int meridians, int parallels, int radius) {
 	clear();
-	Object_data.Clear_Data();
-	if (meridians == 0 && parallels == 0)
-		Generate_Cube_VTK(length);
-	else
-		Generate_Sphere_VTK(radius, meridians, parallels);
+	Generate_Sphere_VTK(radius, meridians, parallels);
 	Load_VTK_to_Data();
 }
-void ViewerWidget::Visualize_Object(int distance, int vision, int zenit, int azimut, int frame, Light Bulb, int shading) {
+void ViewerWidget::Visualize_Object(int distance, int vision, int zenit, int azimut, int frame) {
 	clear();
 	if (!frame) {
 		Wireframe_Display(distance, vision, zenit * M_PI / 180., azimut * M_PI / 180.);
 	}
 	else {
-		zBuffer_Display(distance, vision, zenit * M_PI / 180., azimut * M_PI / 180., Bulb, shading);
+		zBuffer_Display(distance, vision, zenit * M_PI / 180., azimut * M_PI / 180.);
 	}
+}
+void ViewerWidget::Light_Object(Light bulb, int distance, int vision, int zenit, int azimut, int frame) {
+	QVector<QVector<QVector3D>> Projection;
+	switch (vision) {
+		case 0:
+			Projection = Parallel_Projection(distance, zenit * M_PI / 180., azimut * M_PI / 180.);
+			break;
+		case 1:
+			Projection = Perspective_Projection(distance, zenit * M_PI / 180., azimut * M_PI / 180.);
+			break;
+	}
+	zBuffer(Projection, bulb);
+
 }
 QVector<QVector<QVector3D>> ViewerWidget::Perspective_Projection(double distance, double zenit, double azimut) {
 	int center_x = img->width() / 2;
@@ -514,6 +517,7 @@ QVector<QVector<QVector3D>> ViewerWidget::Perspective_Projection(double distance
 		projectedPolygons.push_back(projectedPolygon);
 
 	}
+	
 	update();
 	return projectedPolygons;
 }
@@ -562,22 +566,36 @@ void ViewerWidget::Wireframe_Display(double distance, int vision, double zenit, 
 			Projection = Perspective_Projection(distance, zenit, azimut);
 			break;
 	}
+	Object_data.Print_Data();
 }
-void ViewerWidget::zBuffer_Display(double distance, int vision, double zenit, double azimut, Light Bulb, int shading) {
+void ViewerWidget::zBuffer_Display(double distance, int vision, double zenit, double azimut) {
 	QVector<QVector<QVector3D>> Projection;
-	Light bulb;
 	switch (vision) {
 		case 0:
 			Projection = Parallel_Projection(distance, zenit, azimut);
-			zBuffer(Projection, bulb, shading);
 			break;
 		case 1:
 			Projection = Perspective_Projection(distance, zenit, azimut);
-			zBuffer(Projection, bulb, shading);
 			break;
 	}
+	zBuffer(Projection);
 }
-void ViewerWidget::zBuffer(QVector<QVector<QVector3D>> projectedPolygons, Light bulb, int shading) {
+QColor ViewerWidget::Phong_Model(QVector<QVector3D> polygon, Light bulb) {
+	QVector3D A = polygon[0];
+	QVector3D B = polygon[1];
+	QVector3D C = polygon[2];
+	QVector3D normal = QVector3D::crossProduct(B - A, C - A);
+	normal.normalize();
+	QVector3D light = bulb.get_Position() - A;
+	light.normalize();
+	double cos_theta = QVector3D::dotProduct(normal, light);
+	if (cos_theta < 0) {
+		cos_theta = 0;
+	}
+	QColor color = QColor::fromRgbF(bulb.get_Color().redF() * cos_theta, bulb.get_Color().greenF() * cos_theta, bulb.get_Color().blueF() * cos_theta);
+	return color;
+}
+void ViewerWidget::zBuffer(QVector<QVector<QVector3D>> projectedPolygons) {
 	// Image dimensions
 	int width = img->width();
 	int height = img->height();
@@ -593,15 +611,14 @@ void ViewerWidget::zBuffer(QVector<QVector<QVector3D>> projectedPolygons, Light 
 		}
 	}
 	// Iterate over each projected polygon
-	for (int i = 0; i < projectedPolygons.size(); ++i) {
-		const auto& polygon = projectedPolygons[i];
-		QVector<QColor> polygon_colors = Object_data.get_Colors()[i];
+	for (int i = 0; i < projectedPolygons.size(); i++) {
+		QVector<QVector3D> polygon = projectedPolygons[i];
 		// Calculate bounding box of the polygon
 		int minX = std::numeric_limits<int>::max();
 		int maxX = std::numeric_limits<int>::min();
 		int minY = std::numeric_limits<int>::max();
 		int maxY = std::numeric_limits<int>::min();
-		for (const auto& point : polygon) {
+		for (auto const& point : polygon) {
 			int x = point.x();
 			int y = point.y();
 			minX = std::min(minX, x);
@@ -609,16 +626,16 @@ void ViewerWidget::zBuffer(QVector<QVector<QVector3D>> projectedPolygons, Light 
 			minY = std::min(minY, y);
 			maxY = std::max(maxY, y);
 		}
-
+		
 		// Iterate over the bounding box
-		for (int x = minX; x < maxX; ++x) {
-			for (int y = minY; y < maxY; ++y) {
+		for (int x = minX; x <= maxX; ++x) {
+			for (int y = minY; y <= maxY; ++y) {
 				// Check if the pixel is inside the polygon
 				if (isInsideTriangle(polygon, QVector3D(x, y, 0))) {
 					double z = interpolateZ(x, y, polygon); // Interpolate z-coordinate
 					if (z > Z[x][y]) {
 						Z[x][y] = z;
-						F[x][y] = Barycentric(polygon, QVector3D(x, y, z), polygon_colors); // Interpolate color
+						F[x][y] = Qt::black;
 					}
 				}
 			}
@@ -632,7 +649,61 @@ void ViewerWidget::zBuffer(QVector<QVector<QVector3D>> projectedPolygons, Light 
 	}
 	update();
 }
+void ViewerWidget::zBuffer(QVector<QVector<QVector3D>> projectedPolygons, Light Bulb) {
+	qDebug() << "bulb";
+	// Image dimensions
+	int width = img->width();
+	int height = img->height();
 
+	// Initialize arrays for storing color and depth
+	QVector<QVector<QColor>> F(width, QVector<QColor>(height, Qt::black)); // Color points
+	QVector<QVector<double>> Z(width, QVector<double>(height, -std::numeric_limits<double>::infinity())); // Depth values
+
+	// Write background color and low depth values
+	for (int x = 0; x < width; ++x) {
+		for (int y = 0; y < height; ++y) {
+			F[x][y] = Qt::white; // Background color
+		}
+	}
+	// Iterate over each projected polygon
+	for (int i = 0; i < projectedPolygons.size(); i++) {
+		QVector<QVector3D> polygon = projectedPolygons[i];
+		// Calculate bounding box of the polygon
+		int minX = std::numeric_limits<int>::max();
+		int maxX = std::numeric_limits<int>::min();
+		int minY = std::numeric_limits<int>::max();
+		int maxY = std::numeric_limits<int>::min();
+		for (auto const& point : polygon) {
+			int x = point.x();
+			int y = point.y();
+			minX = std::min(minX, x);
+			maxX = std::max(maxX, x);
+			minY = std::min(minY, y);
+			maxY = std::max(maxY, y);
+		}
+		
+		// Iterate over the bounding box
+		for (int x = minX; x <= maxX; ++x) {
+			for (int y = minY; y <= maxY; ++y) {
+				// Check if the pixel is inside the polygon
+				if (isInsideTriangle(polygon, QVector3D(x, y, 0))) {
+					double z = interpolateZ(x, y, polygon); // Interpolate z-coordinate
+					if (z > Z[x][y]) {
+						Z[x][y] = z;
+						F[x][y] = Phong_Model(polygon, Bulb);
+					}
+				}
+			}
+		}
+	}
+
+	for (int x = 0; x < width; ++x) {
+		for (int y = 0; y < height; ++y) {
+			img->setPixel(x, y, F[x][y].rgb()); // Set pixel color
+		}
+	}
+	update();
+}
 void ViewerWidget::Print_Projected_Polygons(QVector<QVector<QVector3D>> Projected_polygons) {
 	for (int i = 0; i < Projected_polygons.size(); i++) {
 		qDebug() << "Polygon " << i;
