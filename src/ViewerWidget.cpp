@@ -204,6 +204,108 @@ QVector<QVector3D> ViewerWidget::Sutherland_Hodgeman(QVector<QVector3D> triangle
 	update();
 	return polygon;
 }
+void ViewerWidget::Scan_Line(QVector<QVector3D> polygon, QColor color) {
+	QVector<Edge> edges;
+
+	// Loop through each vertex of the polygon to generate edges
+	for (int i = 0; i < polygon.size(); i++) {
+		int next = (i + 1) % polygon.size();
+		// Skip horizontal edges
+		if (polygon[i].y() == polygon[next].y())
+			continue;
+		QVector3D start = polygon[i].y() < polygon[next].y() ? polygon[i] : polygon[next];
+		QVector3D end = polygon[i].y() < polygon[next].y() ? polygon[next] : polygon[i];
+		// Adjust the end point slightly to ensure correct edge classification
+		end.setY(end.y() - 1);
+		double dx = (end.x() - start.x());
+		if (dx == 0) dx = 1 / DBL_MAX;
+
+		double m = (double)(end.y() - start.y()) / dx;
+		// Create an edge struct and add it to the vector
+		Edge edge = { start, end, m };
+		edges.push_back(edge);
+	}
+	// Sort edges based on the starting y-coordinate
+	std::sort(edges.begin(), edges.end(), [](const Edge& e1, const Edge& e2) {
+		return e1.start.y() < e2.start.y();
+		});
+
+	// Find the minimum and maximum y-coordinates of the bounding box
+	int ymin = edges.front().start.y();
+	int ymax = edges.front().end.y();
+
+	for (int i = 1; i < edges.size(); i++) {
+		if (edges[i].start.y() < ymin)
+			ymin = edges[i].start.y();
+		if (edges[i].end.y() > ymax)
+			ymax = edges[i].end.y();
+	}
+
+	QVector<QVector<Edge>> TH(ymax - ymin + 1);
+
+	if (TH.size() < 2) return;
+
+	for (int i = 0; i < edges.size(); i++) {
+		int delta_y = edges[i].end.y() - edges[i].start.y();
+		double x = edges[i].start.x();
+		double w = 0;
+		if (edges[i].m == 0) {
+			w = 0;
+		}
+		else {
+			w = (double)1.0 / edges[i].m;
+		}
+		edges[i].delta_y = delta_y;
+		edges[i].x = x;
+		edges[i].w = w;
+
+		TH[(edges[i].start.y() - ymin)].push_back(edges[i]);
+	}
+
+	QVector<Edge> ZAH;
+	// Scan convert each scanline
+	int y = ymin;
+
+	for (int i = 0; i < ymax - ymin; i++) {
+		// Add active edges from TH to ZAH
+		if (!TH[i].empty()) {
+
+			for (const Edge& edge : TH[i]) {
+				ZAH.push_back(edge);
+			}
+		}
+
+		std::sort(ZAH.begin(), ZAH.end(), [](const Edge& e1, const Edge& e2) {
+			return e1.x < e2.x;
+			});
+
+		// Fill scanline between pairs of edges in ZAH
+		for (int j = 0; j < ZAH.size(); j += 2) {
+
+			if (j + 1 < ZAH.size() && ZAH[j].x != ZAH[j + 1].x) {
+
+				for (int k = round(ZAH[j].x); k <= round(ZAH[j + 1].x); k++) {
+					if (isInside(k, y)) {
+						setPixel(k, y, color);
+					}
+				}
+			}
+		}
+		// Update x-coordinates and decrement delta_y for remaining edges in ZAH
+		for (int j = 0; j < ZAH.size(); j++) {
+			if (ZAH[j].delta_y == 0) {
+				ZAH.erase(ZAH.begin() + j);
+				j--;
+			}
+		}
+
+		for (int j = 0; j < ZAH.size(); j++) {
+			ZAH[j].delta_y--;
+			ZAH[j].x += ZAH[j].w;
+		}
+		y++;
+	}
+}
 void ViewerWidget::clear() {
 	img->fill(Qt::white);
 	update();
@@ -463,14 +565,16 @@ void ViewerWidget::Generate_Object(int length, int meridians, int parallels, int
 }
 void ViewerWidget::Visualize_Object(int distance, int vision, int zenit, int azimut, int frame) {
 	clear();
-	if (!frame) {
-		Wireframe_Display(distance, vision, zenit * M_PI / 180., azimut * M_PI / 180.);
-	}
-	else {
-		zBuffer_Display(distance, vision, zenit * M_PI / 180., azimut * M_PI / 180.);
+	switch (frame) {
+		case 0:
+			Wireframe_Display(distance, vision, zenit * M_PI / 180., azimut * M_PI / 180.);
+			break;
+		case 1:
+			zBuffer_Display(distance, vision, zenit * M_PI / 180., azimut * M_PI / 180.);
+			break;
 	}
 }
-void ViewerWidget::Light_Object(Light bulb, int distance, int vision, int zenit, int azimut, int frame) {
+void ViewerWidget::Light_Object(Light bulb, int distance, int vision, int zenit, int azimut, int frame, int shading) {
 	QVector<QVector<QVector3D>> Projection;
 	switch (vision) {
 		case 0:
@@ -480,13 +584,12 @@ void ViewerWidget::Light_Object(Light bulb, int distance, int vision, int zenit,
 			Projection = Perspective_Projection(distance, zenit * M_PI / 180., azimut * M_PI / 180.);
 			break;
 	}
-	zBuffer(Projection, bulb);
+	zBuffer(Projection, bulb, distance, shading);
 
 }
 QVector<QVector<QVector3D>> ViewerWidget::Perspective_Projection(double distance, double zenit, double azimut) {
 	int center_x = img->width() / 2;
 	int center_y = img->height() / 2;
-	QVector<QVector3D> points = Object_data.get_Points();
 	QVector<QVector3D*> polygons = Object_data.get_Polygons();
 	QVector<QVector<QVector3D>> projectedPolygons;
 	// Calculate camera orientation vectors
@@ -566,7 +669,6 @@ void ViewerWidget::Wireframe_Display(double distance, int vision, double zenit, 
 			Projection = Perspective_Projection(distance, zenit, azimut);
 			break;
 	}
-	Object_data.Print_Data();
 }
 void ViewerWidget::zBuffer_Display(double distance, int vision, double zenit, double azimut) {
 	QVector<QVector<QVector3D>> Projection;
@@ -580,21 +682,174 @@ void ViewerWidget::zBuffer_Display(double distance, int vision, double zenit, do
 	}
 	zBuffer(Projection);
 }
-QColor ViewerWidget::Phong_Model(QVector<QVector3D> polygon, Light bulb) {
-	QVector3D A = polygon[0];
-	QVector3D B = polygon[1];
-	QVector3D C = polygon[2];
-	QVector3D normal = QVector3D::crossProduct(B - A, C - A);
-	normal.normalize();
-	QVector3D light = bulb.get_Position() - A;
-	light.normalize();
-	double cos_theta = QVector3D::dotProduct(normal, light);
-	if (cos_theta < 0) {
-		cos_theta = 0;
-	}
-	QColor color = QColor::fromRgbF(bulb.get_Color().redF() * cos_theta, bulb.get_Color().greenF() * cos_theta, bulb.get_Color().blueF() * cos_theta);
-	return color;
+QColor ViewerWidget::Phong_Model(QVector<QVector3D> polygon, Light bulb, QVector3D P, int distance) {
+	QVector3D vertex1 = polygon[0];
+	QVector3D vertex2 = polygon[1];
+	QVector3D vertex3 = polygon[2];
+	QVector3D N = QVector3D::crossProduct(vertex2 - vertex1, vertex3 - vertex1).normalized();
+	QVector3D source = bulb.get_Position();
+	QVector3D camera = QVector3D(P.x(), P.y(), P.z() + distance);
+	QVector3D V = (camera - P).normalized();
+	QVector3D L = (source - P).normalized();
+	QVector3D R = 2 * QVector3D::dotProduct(L, N) * N - L;
+
+	double dot = std::pow(QVector3D::dotProduct(V, R), 30);
+
+	int rs = bulb.get_Color().red() * bulb.get_POM_Refl_RGB()[0] * dot;
+	int gs = bulb.get_Color().green() * bulb.get_POM_Refl_RGB()[1] * dot;
+	int bs = bulb.get_Color().blue() * bulb.get_POM_Refl_RGB()[2] * dot;
+
+	dot = QVector3D::dotProduct(L, N);
+	int rd = bulb.get_Color().red() * bulb.get_POM_Diff_RGB()[0] * dot;
+	int gd = bulb.get_Color().green() * bulb.get_POM_Diff_RGB()[1] * dot;
+	int bd = bulb.get_Color().blue() * bulb.get_POM_Diff_RGB()[2] * dot;
+
+	int ra = bulb.get_Ambient().red() * bulb.get_POM_Amb_RGB()[0];
+	int ga = bulb.get_Ambient().green() * bulb.get_POM_Amb_RGB()[1];
+	int ba = bulb.get_Ambient().blue() * bulb.get_POM_Amb_RGB()[2];
+
+	int r = rs + rd + ra;
+	int g = gs + gd + ga;
+	int b = bs + bd + ba;
+
+	r = std::min(r, 255);
+	g = std::min(g, 255);
+	b = std::min(b, 255);
+
+	return QColor(r, g, b);
+	
 }
+QColor ViewerWidget::Flat_Model(QVector<QVector3D> polygon, Light bulb, QVector3D P, int distance) {
+	QVector3D vertex1 = polygon[0];
+	QVector3D vertex2 = polygon[1];
+	QVector3D vertex3 = polygon[2];
+	QVector3D N = QVector3D::crossProduct(vertex2 - vertex1, vertex3 - vertex1).normalized();
+	QVector3D source = bulb.get_Position();
+	QVector3D camera = QVector3D(P.x(), P.y(), P.z() + distance);
+	QVector3D V = (camera - P).normalized();
+	QVector3D L = (source - P).normalized();
+	QVector3D R = 2 * QVector3D::dotProduct(L, N) * N - L;
+
+	double dot = std::pow(QVector3D::dotProduct(V, R), 30);
+
+	int rs = bulb.get_Color().red() * bulb.get_POM_Refl_RGB()[0] * dot;
+	int gs = bulb.get_Color().green() * bulb.get_POM_Refl_RGB()[1] * dot;
+	int bs = bulb.get_Color().blue() * bulb.get_POM_Refl_RGB()[2] * dot;
+
+	dot = QVector3D::dotProduct(L, N);
+	int rd = bulb.get_Color().red() * bulb.get_POM_Diff_RGB()[0] * dot;
+	int gd = bulb.get_Color().green() * bulb.get_POM_Diff_RGB()[1] * dot;
+	int bd = bulb.get_Color().blue() * bulb.get_POM_Diff_RGB()[2] * dot;
+
+	int ra = bulb.get_Ambient().red() * bulb.get_POM_Amb_RGB()[0];
+	int ga = bulb.get_Ambient().green() * bulb.get_POM_Amb_RGB()[1];
+	int ba = bulb.get_Ambient().blue() * bulb.get_POM_Amb_RGB()[2];
+
+	int r = rs + rd + ra;
+	int g = gs + gd + ga;
+	int b = bs + bd + ba;
+
+	r = std::min(r, 255);
+	g = std::min(g, 255);
+	b = std::min(b, 255);
+
+	return QColor(r, g, b);
+}
+QColor ViewerWidget::Gouraud_Model(QVector<QVector3D> polygon, Light bulb, QVector3D P, int distance) {
+	QVector3D vertex1 = polygon[0];
+	QVector3D vertex2 = polygon[1];
+	QVector3D vertex3 = polygon[2];
+	QVector3D N1 = QVector3D::crossProduct(vertex2 - vertex1, vertex3 - vertex1).normalized();
+	QVector3D N2 = QVector3D::crossProduct(vertex3 - vertex2, vertex1 - vertex2).normalized();
+	QVector3D N3 = QVector3D::crossProduct(vertex1 - vertex3, vertex2 - vertex3).normalized();
+	QVector3D source = bulb.get_Position();
+	QVector3D camera = QVector3D(P.x(), P.y(), P.z() + distance);
+	QVector3D V = (camera - P).normalized();
+	QVector3D L = (source - P).normalized();
+	QVector3D R1 = 2 * QVector3D::dotProduct(L, N1) * N1 - L;
+	QVector3D R2 = 2 * QVector3D::dotProduct(L, N2) * N2 - L;
+	QVector3D R3 = 2 * QVector3D::dotProduct(L, N3) * N3 - L;
+
+	double dot1 = std::pow(QVector3D::dotProduct(V, R1), 30);
+	double dot2 = std::pow(QVector3D::dotProduct(V, R2), 30);
+	double dot3 = std::pow(QVector3D::dotProduct(V, R3), 30);
+
+	int rs1 = bulb.get_Color().red() * bulb.get_POM_Refl_RGB()[0] * dot1;
+	int gs1 = bulb.get_Color().green() * bulb.get_POM_Refl_RGB()[1] * dot1;
+	int bs1 = bulb.get_Color().blue() * bulb.get_POM_Refl_RGB()[2] * dot1;
+
+	int rs2 = bulb.get_Color().red() * bulb.get_POM_Refl_RGB()[0] * dot2;
+	int gs2 = bulb.get_Color().green() * bulb.get_POM_Refl_RGB()[1] * dot2;
+	int bs2 = bulb.get_Color().blue() * bulb.get_POM_Refl_RGB()[2] * dot2;
+
+	int rs3 = bulb.get_Color().red() * bulb.get_POM_Refl_RGB()[0] * dot3;
+	int gs3 = bulb.get_Color().green() * bulb.get_POM_Refl_RGB()[1] * dot3;
+	int bs3 = bulb.get_Color().blue() * bulb.get_POM_Refl_RGB()[2] * dot3;
+
+	dot1 = QVector3D::dotProduct(L, N1);
+	int rd1 = bulb.get_Color().red() * bulb.get_POM_Diff_RGB()[0] * dot1;
+	int gd1 = bulb.get_Color().green() * bulb.get_POM_Diff_RGB()[1] * dot1;
+	int bd1 = bulb.get_Color().blue() * bulb.get_POM_Diff_RGB()[2] * dot1;
+
+	int ra1 = bulb.get_Ambient().red() * bulb.get_POM_Amb_RGB()[0];
+	int ga1 = bulb.get_Ambient().green() * bulb.get_POM_Amb_RGB()[1];
+	int ba1 = bulb.get_Ambient().blue() * bulb.get_POM_Amb_RGB()[2];
+
+	int r1 = rs1 + rd1 + ra1;
+	int g1 = gs1 + gd1 + ga1;
+	int b1 = bs1 + bd1 + ba1;
+
+	r1 = std::min(r1, 255);
+	g1 = std::min(g1, 255);
+	b1 = std::min(b1, 255);
+
+	dot2 = QVector3D::dotProduct(L, N2);
+	int rd2 = bulb.get_Color().red() * bulb.get_POM_Diff_RGB()[0] * dot2;
+	int gd2 = bulb.get_Color().green() * bulb.get_POM_Diff_RGB()[1] * dot2;
+	int bd2 = bulb.get_Color().blue() * bulb.get_POM_Diff_RGB()[2] * dot2;
+
+	int ra2 = bulb.get_Ambient().red() * bulb.get_POM_Amb_RGB()[0];
+	int ga2 = bulb.get_Ambient().green() * bulb.get_POM_Amb_RGB()[1];
+	int ba2 = bulb.get_Ambient().blue() * bulb.get_POM_Amb_RGB()[2];
+
+	int r2 = rs2 + rd2 + ra2;
+	int g2 = gs2 + gd2 + ga2;
+	int b2 = bs2 + bd2 + ba2;
+
+	r2 = std::min(r2, 255);
+	g2 = std::min(g2, 255);
+	b2 = std::min(b2, 255);
+
+	dot3 = QVector3D::dotProduct(L, N3);
+	int rd3 = bulb.get_Color().red() * bulb.get_POM_Diff_RGB()[0] * dot3;
+	int gd3 = bulb.get_Color().green() * bulb.get_POM_Diff_RGB()[1] * dot3;
+	int bd3 = bulb.get_Color().blue() * bulb.get_POM_Diff_RGB()[2] * dot3;
+
+	int ra3 = bulb.get_Ambient().red() * bulb.get_POM_Amb_RGB()[0];
+	int ga3 = bulb.get_Ambient().green() * bulb.get_POM_Amb_RGB()[1];
+	int ba3 = bulb.get_Ambient().blue() * bulb.get_POM_Amb_RGB()[2];
+
+	int r3 = rs3 + rd3 + ra3;
+	int g3 = gs3 + gd3 + ga3;
+	int b3 = bs3 + bd3 + ba3;
+
+	r3 = std::min(r3, 255);
+	g3 = std::min(g3, 255);
+	b3 = std::min(b3, 255);
+
+	QColor color1(r1, g1, b1);
+	QColor color2(r2, g2, b2);
+	QColor color3(r3, g3, b3);
+
+	QVector<QColor> color;
+	color.push_back(color1);
+	color.push_back(color2);
+	color.push_back(color3);
+
+	return Barycentric(polygon, P, color);
+}
+
+
 void ViewerWidget::zBuffer(QVector<QVector<QVector3D>> projectedPolygons) {
 	// Image dimensions
 	int width = img->width();
@@ -649,8 +904,7 @@ void ViewerWidget::zBuffer(QVector<QVector<QVector3D>> projectedPolygons) {
 	}
 	update();
 }
-void ViewerWidget::zBuffer(QVector<QVector<QVector3D>> projectedPolygons, Light Bulb) {
-	qDebug() << "bulb";
+void ViewerWidget::zBuffer(QVector<QVector<QVector3D>> projectedPolygons, Light Bulb, int distance, int shading) {
 	// Image dimensions
 	int width = img->width();
 	int height = img->height();
@@ -681,16 +935,26 @@ void ViewerWidget::zBuffer(QVector<QVector<QVector3D>> projectedPolygons, Light 
 			minY = std::min(minY, y);
 			maxY = std::max(maxY, y);
 		}
-		
 		// Iterate over the bounding box
-		for (int x = minX; x <= maxX; ++x) {
-			for (int y = minY; y <= maxY; ++y) {
+		for (int x = minX; x < maxX; ++x) {
+			for (int y = minY; y < maxY; ++y) {
+				QVector3D P = QVector3D(x, y, 0);
 				// Check if the pixel is inside the polygon
-				if (isInsideTriangle(polygon, QVector3D(x, y, 0))) {
+				if (isInsideTriangle(polygon, P)) {
 					double z = interpolateZ(x, y, polygon); // Interpolate z-coordinate
 					if (z > Z[x][y]) {
 						Z[x][y] = z;
-						F[x][y] = Phong_Model(polygon, Bulb);
+						switch (shading) {
+							case 0:
+								F[x][y] =Flat_Model(polygon, Bulb, P, distance);
+								break;
+							case 1:
+								F[x][y] = Gouraud_Model(polygon, Bulb, P, distance);
+								break;
+							case 2:
+								F[x][y] = Phong_Model(polygon, Bulb, P, distance);
+								break;
+						}
 					}
 				}
 			}

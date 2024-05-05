@@ -502,6 +502,11 @@
             <string>Gouraud</string>
            </property>
           </item>
+          <item>
+           <property name="text">
+            <string>Phong</string>
+           </property>
+          </item>
          </widget>
         </item>
        </layout>
@@ -549,12 +554,18 @@
           <property name="maximum">
            <number>1000</number>
           </property>
+          <property name="value">
+           <number>500</number>
+          </property>
          </widget>
         </item>
         <item row="2" column="1">
          <widget class="QSlider" name="Slider_Source_Y">
           <property name="maximum">
            <number>1000</number>
+          </property>
+          <property name="value">
+           <number>500</number>
           </property>
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
@@ -566,6 +577,9 @@
           <property name="maximum">
            <number>1000</number>
           </property>
+          <property name="value">
+           <number>500</number>
+          </property>
          </widget>
         </item>
         <item row="3" column="2">
@@ -573,12 +587,18 @@
           <property name="maximum">
            <number>1000</number>
           </property>
+          <property name="value">
+           <number>500</number>
+          </property>
          </widget>
         </item>
         <item row="3" column="1">
          <widget class="QSlider" name="Slider_Source_Z">
           <property name="maximum">
            <number>1000</number>
+          </property>
+          <property name="value">
+           <number>500</number>
           </property>
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
@@ -604,6 +624,9 @@
           <property name="maximum">
            <number>1000</number>
           </property>
+          <property name="value">
+           <number>500</number>
+          </property>
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
@@ -623,6 +646,9 @@
           <property name="maximum">
            <number>255</number>
           </property>
+          <property name="value">
+           <number>125</number>
+          </property>
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
@@ -639,6 +665,9 @@
          <widget class="QSlider" name="Slider_SColor_G">
           <property name="maximum">
            <number>255</number>
+          </property>
+          <property name="value">
+           <number>125</number>
           </property>
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
@@ -657,12 +686,18 @@
           <property name="maximum">
            <number>255</number>
           </property>
+          <property name="value">
+           <number>125</number>
+          </property>
          </widget>
         </item>
         <item row="0" column="2">
          <widget class="QSpinBox" name="SpinBox_SColor_R">
           <property name="maximum">
            <number>255</number>
+          </property>
+          <property name="value">
+           <number>125</number>
           </property>
          </widget>
         </item>
@@ -678,6 +713,9 @@
           <property name="maximum">
            <number>255</number>
           </property>
+          <property name="value">
+           <number>125</number>
+          </property>
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
@@ -687,6 +725,9 @@
          <widget class="QSpinBox" name="SpinBox_SColor_B">
           <property name="maximum">
            <number>255</number>
+          </property>
+          <property name="value">
+           <number>125</number>
           </property>
          </widget>
         </item>
@@ -704,6 +745,9 @@
           <property name="maximum">
            <number>255</number>
           </property>
+          <property name="value">
+           <number>125</number>
+          </property>
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
@@ -713,6 +757,9 @@
          <widget class="QSpinBox" name="SpinBox_AColor_G">
           <property name="maximum">
            <number>255</number>
+          </property>
+          <property name="value">
+           <number>125</number>
           </property>
          </widget>
         </item>
@@ -728,6 +775,9 @@
           <property name="maximum">
            <number>255</number>
           </property>
+          <property name="value">
+           <number>125</number>
+          </property>
          </widget>
         </item>
         <item row="0" column="0">
@@ -742,12 +792,18 @@
           <property name="maximum">
            <number>255</number>
           </property>
+          <property name="value">
+           <number>125</number>
+          </property>
          </widget>
         </item>
         <item row="1" column="1">
          <widget class="QSlider" name="Slider_AColor_G">
           <property name="maximum">
            <number>255</number>
+          </property>
+          <property name="value">
+           <number>125</number>
           </property>
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
@@ -765,6 +821,9 @@
          <widget class="QSlider" name="Slider_AColor_R">
           <property name="maximum">
            <number>255</number>
+          </property>
+          <property name="value">
+           <number>125</number>
           </property>
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
@@ -789,6 +848,12 @@
         </item>
         <item row="4" column="2">
          <widget class="QSlider" name="Slider_Amb_G">
+          <property name="maximum">
+           <number>100</number>
+          </property>
+          <property name="value">
+           <number>50</number>
+          </property>
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
@@ -796,6 +861,12 @@
         </item>
         <item row="1" column="2">
          <widget class="QSlider" name="Slider_Diff_G">
+          <property name="maximum">
+           <number>100</number>
+          </property>
+          <property name="value">
+           <number>50</number>
+          </property>
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
@@ -810,6 +881,12 @@
         </item>
         <item row="4" column="3">
          <widget class="QSlider" name="Slider_Amb_B">
+          <property name="maximum">
+           <number>100</number>
+          </property>
+          <property name="value">
+           <number>50</number>
+          </property>
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
@@ -831,6 +908,12 @@
         </item>
         <item row="3" column="2">
          <widget class="QSlider" name="Slider_Refl_G">
+          <property name="maximum">
+           <number>100</number>
+          </property>
+          <property name="value">
+           <number>50</number>
+          </property>
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
@@ -838,6 +921,12 @@
         </item>
         <item row="3" column="1">
          <widget class="QSlider" name="Slider_Refl_R">
+          <property name="maximum">
+           <number>100</number>
+          </property>
+          <property name="value">
+           <number>50</number>
+          </property>
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
@@ -845,6 +934,12 @@
         </item>
         <item row="4" column="1">
          <widget class="QSlider" name="Slider_Amb_R">
+          <property name="maximum">
+           <number>100</number>
+          </property>
+          <property name="value">
+           <number>50</number>
+          </property>
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
@@ -866,6 +961,12 @@
         </item>
         <item row="1" column="3">
          <widget class="QSlider" name="Slider_Diff_B">
+          <property name="maximum">
+           <number>100</number>
+          </property>
+          <property name="value">
+           <number>50</number>
+          </property>
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
@@ -873,6 +974,12 @@
         </item>
         <item row="3" column="3">
          <widget class="QSlider" name="Slider_Refl_B">
+          <property name="maximum">
+           <number>100</number>
+          </property>
+          <property name="value">
+           <number>50</number>
+          </property>
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
@@ -891,6 +998,12 @@
           </property>
           <property name="toolTip">
            <string/>
+          </property>
+          <property name="maximum">
+           <number>100</number>
+          </property>
+          <property name="value">
+           <number>50</number>
           </property>
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
@@ -922,13 +1035,6 @@
         <widget class="QCheckBox" name="checkBoxAddLight">
          <property name="text">
           <string>Apply Dynamic Lighting</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="1">
-        <widget class="QPushButton" name="pushButtonAddLight">
-         <property name="text">
-          <string>Add Light</string>
          </property>
         </widget>
        </item>

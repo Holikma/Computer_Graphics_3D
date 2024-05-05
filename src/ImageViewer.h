@@ -59,5 +59,4 @@ private slots:
 	void on_Slider_Parallels_valueChanged(int value);
 	void on_Slider_Radius_valueChanged(int value);
 	void on_Slider_Length_valueChanged(int value);
-	void on_pushButtonAddLight_clicked();
 };

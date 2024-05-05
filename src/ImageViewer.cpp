@@ -139,8 +139,6 @@ void ImageViewer::Connect_Sliders_to_SpinBoxes() {
 	connect(ui->Slider_Zenit, SIGNAL(valueChanged(int)), this, SLOT(Update_visuals()));
 	connect(ui->Slider_Azimut, SIGNAL(valueChanged(int)), this, SLOT(Update_visuals()));
 	connect(ui->Slider_Distance, SIGNAL(valueChanged(int)), this, SLOT(Update_visuals()));
-	connect(ui->comboBoxVision, SIGNAL(currentIndexChanged(int)), this, SLOT(Update_visuals()));
-	connect(ui->comboBoxFrame, SIGNAL(currentIndexChanged(int)), this, SLOT(Update_visuals()));
 	connect(ui->Slider_Source_X, SIGNAL(valueChanged(int)), this, SLOT(Update_visuals()));
 	connect(ui->Slider_Source_Y, SIGNAL(valueChanged(int)), this, SLOT(Update_visuals()));
 	connect(ui->Slider_Source_Z, SIGNAL(valueChanged(int)), this, SLOT(Update_visuals()));
@@ -159,6 +157,10 @@ void ImageViewer::Connect_Sliders_to_SpinBoxes() {
 	connect(ui->Slider_Amb_R, SIGNAL(valueChanged(int)), this, SLOT(Update_visuals()));
 	connect(ui->Slider_Amb_G, SIGNAL(valueChanged(int)), this, SLOT(Update_visuals()));
 	connect(ui->Slider_Amb_B, SIGNAL(valueChanged(int)), this, SLOT(Update_visuals()));
+	connect(ui->checkBoxAddLight, SIGNAL(stateChanged(int)), this, SLOT(Update_visuals()));
+	connect(ui->comboBoxVision, SIGNAL(currentIndexChanged(int)), this, SLOT(Update_visuals()));
+	connect(ui->comboBoxFrame, SIGNAL(currentIndexChanged(int)), this, SLOT(Update_visuals()));
+	connect(ui->comboBoxShading, SIGNAL(currentIndexChanged(int)), this, SLOT(Update_visuals()));
 }
 
 //Slots
@@ -219,7 +221,7 @@ void ImageViewer::on_pushButtonGenerateCube_clicked() {
 	vW->get_Object_Data()->Clear_Data();
 	vW->Generate_Cube_VTK(ui->SpinBox_Length->value());
 	vW->Load_VTK_to_Data(); 
-	vW->Visualize_Object(ui->SpinBox_Distance->value(), ui->comboBoxVision->currentIndex(), ui->SpinBox_Zenit->value(), ui->SpinBox_Azimut->value(), ui->comboBoxFrame->currentIndex());
+	Update_visuals();
 }
 
 void ImageViewer::on_pushButtonGenerateSphere_clicked() {
@@ -227,46 +229,35 @@ void ImageViewer::on_pushButtonGenerateSphere_clicked() {
 	vW->Generate_Sphere_VTK(ui->SpinBox_Radius->value(), ui->SpinBox_Meridians->value(), ui->SpinBox_Parallels->value());
 	vW->get_Object_Data()->Clear_Data();
 	vW->Load_VTK_to_Data();
-	vW->Visualize_Object(ui->SpinBox_Distance->value(), ui->comboBoxVision->currentIndex(), ui->SpinBox_Zenit->value(), ui->SpinBox_Azimut->value(), ui->comboBoxFrame->currentIndex());
+	Update_visuals();
 }
 //Crate object Slots
 
 void ImageViewer::on_Slider_Meridians_valueChanged(int value) {
 	vW->Generate_Object(ui->SpinBox_Length->value(), value, ui->SpinBox_Parallels->value(), ui->SpinBox_Radius->value());
-	vW->Visualize_Object(ui->SpinBox_Distance->value(), ui->comboBoxVision->currentIndex(), ui->SpinBox_Zenit->value(), ui->SpinBox_Azimut->value(), ui->comboBoxFrame->currentIndex());
+	Update_visuals();
 }
 
 void ImageViewer::on_Slider_Parallels_valueChanged(int value) {
 	vW->Generate_Object(ui->SpinBox_Length->value(), ui->SpinBox_Meridians->value(), value, ui->SpinBox_Radius->value());
-	vW->Visualize_Object(ui->SpinBox_Distance->value(), ui->comboBoxVision->currentIndex(), ui->SpinBox_Zenit->value(), ui->SpinBox_Azimut->value(), ui->comboBoxFrame->currentIndex());
+	Update_visuals();
 }
 
 void ImageViewer::on_Slider_Radius_valueChanged(int value) {
 	vW->Generate_Object(ui->SpinBox_Length->value(), ui->SpinBox_Meridians->value(), ui->SpinBox_Parallels->value(), value);
-	vW->Visualize_Object(ui->SpinBox_Distance->value(), ui->comboBoxVision->currentIndex(), ui->SpinBox_Zenit->value(), ui->SpinBox_Azimut->value(), ui->comboBoxFrame->currentIndex());
+	Update_visuals();
 }
 
 void ImageViewer::on_Slider_Length_valueChanged(int value) {
 	vW->Generate_Cube_VTK(value);
 	vW->Load_VTK_to_Data();
-	vW->Visualize_Object(ui->SpinBox_Distance->value(), ui->comboBoxVision->currentIndex(), ui->SpinBox_Zenit->value(), ui->SpinBox_Azimut->value(), ui->comboBoxFrame->currentIndex());
+	Update_visuals();
 }
 
 //Visualize object Slots
 
-void ImageViewer::on_pushButtonAddLight_clicked() {
-	Light bulb(
-		QVector3D(ui->SpinBox_X->value(), ui->SpinBox_Y->value(), ui->SpinBox_Z->value()),
-		QColor(ui->SpinBox_SColor_R->value(), ui->SpinBox_SColor_G->value(), ui->SpinBox_SColor_B->value()),
-		QColor(ui->SpinBox_AColor_R->value(), ui->SpinBox_AColor_G->value(), ui->SpinBox_AColor_B->value()),
-		QVector<double>{ui->Slider_Diff_R->value() / 100., ui->Slider_Diff_G->value() / 100., ui->Slider_Diff_B->value() / 100.},
-		QVector<double>{ui->Slider_Refl_R->value() / 100., ui->Slider_Refl_G->value() / 100., ui->Slider_Refl_B->value() / 100.},
-		QVector<double>{ui->Slider_Amb_R->value() / 100., ui->Slider_Amb_G->value() / 100., ui->Slider_Amb_B->value() / 100.}
-	);
-	vW->Light_Object(bulb, ui->SpinBox_Distance->value(), ui->comboBoxVision->currentIndex(), ui->SpinBox_Zenit->value(), ui->SpinBox_Azimut->value(), ui->comboBoxFrame->currentIndex());
-}
-
 void ImageViewer::Update_visuals() {
+	vW->clear();
 	vW->Visualize_Object(ui->SpinBox_Distance->value(), ui->comboBoxVision->currentIndex(), ui->SpinBox_Zenit->value(), ui->SpinBox_Azimut->value(), ui->comboBoxFrame->currentIndex());
 	if (ui->checkBoxAddLight->isChecked() && ui->comboBoxFrame->currentIndex() == 1) {
 		Light bulb(
@@ -277,7 +268,6 @@ void ImageViewer::Update_visuals() {
 			QVector<double>{ui->Slider_Refl_R->value() / 100., ui->Slider_Refl_G->value() / 100., ui->Slider_Refl_B->value() / 100.},
 			QVector<double>{ui->Slider_Amb_R->value() / 100., ui->Slider_Amb_G->value() / 100., ui->Slider_Amb_B->value() / 100.}
 		);
-		vW->clear();
-		vW->Light_Object(bulb, ui->SpinBox_Distance->value(), ui->comboBoxVision->currentIndex(), ui->SpinBox_Zenit->value(), ui->SpinBox_Azimut->value(), ui->comboBoxFrame->currentIndex());
+		vW->Light_Object(bulb, ui->SpinBox_Distance->value(), ui->comboBoxVision->currentIndex(), ui->SpinBox_Zenit->value(), ui->SpinBox_Azimut->value(), ui->comboBoxFrame->currentIndex(), ui->comboBoxShading->currentIndex());
 	}
 }
