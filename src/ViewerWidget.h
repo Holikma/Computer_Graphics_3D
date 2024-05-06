@@ -79,6 +79,7 @@ public:
 	void setPixel(int x, int y, double valR, double valG, double valB, double valA = 1.);
 	void setPixel(int x, int y, const QColor& color);
 	bool isInside(int x, int y) { return (x >= 0 && y >= 0 && x < img->width() && y < img->height()) ? true : false; }
+	bool isInsidePolygon(int x, int y, QVector<QVector3D> polygon);
 	//Draw functions
 	void drawLine(QPoint start, QPoint end, QColor color, int algType = 0);
 	void setDrawLineBegin(QPoint begin) { drawLineBegin = begin; }

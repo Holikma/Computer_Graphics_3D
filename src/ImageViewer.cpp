@@ -261,7 +261,7 @@ void ImageViewer::Update_visuals() {
 	vW->Visualize_Object(ui->SpinBox_Distance->value(), ui->comboBoxVision->currentIndex(), ui->SpinBox_Zenit->value(), ui->SpinBox_Azimut->value(), ui->comboBoxFrame->currentIndex());
 	if (ui->checkBoxAddLight->isChecked() && ui->comboBoxFrame->currentIndex() == 1) {
 		Light bulb(
-			QVector3D(ui->SpinBox_X->value(), ui->SpinBox_Y->value(), ui->SpinBox_Z->value()),
+			QVector3D((width()/2.) - ui->SpinBox_X->value(), (height()/2) - ui->SpinBox_Y->value(), ui->SpinBox_Z->value()),
 			QColor(ui->SpinBox_SColor_R->value(), ui->SpinBox_SColor_G->value(), ui->SpinBox_SColor_B->value()),
 			QColor(ui->SpinBox_AColor_R->value(), ui->SpinBox_AColor_G->value(), ui->SpinBox_AColor_B->value()),
 			QVector<double>{ui->Slider_Diff_R->value() / 100., ui->Slider_Diff_G->value() / 100., ui->Slider_Diff_B->value() / 100.},

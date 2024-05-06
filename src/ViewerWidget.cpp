@@ -117,6 +117,17 @@ void ViewerWidget::setPixel(int x, int y, const QColor& color) {
 	}
 }
 //Draw functions
+bool ViewerWidget::isInsidePolygon(int x, int y, QVector<QVector3D>polygon) {
+		int n = polygon.size();
+	int i, j;
+	bool c = false;
+	for (i = 0, j = n - 1; i < n; j = i++) {
+		if (((polygon[i].y() > y) != (polygon[j].y() > y)) &&
+						(x < (polygon[j].x() - polygon[i].x()) * (y - polygon[i].y()) / (polygon[j].y() - polygon[i].y()) + polygon[i].x()))
+			c = !c;
+	}
+	return c;
+}
 void ViewerWidget::drawLine(QPoint start, QPoint end, QColor color, int algType) {
 	painter->setPen(QPen(color));
 	painter->drawLine(start, end);
@@ -534,6 +545,7 @@ bool ViewerWidget::isInsideTriangle(QVector<QVector3D> triangle, QVector3D P) {
 
 	// Ak sa bod P nachádza na opaènej strane priamky BC, nie je vnútri trojuholníka
 	if ((C.x() - B.x()) * (P.y() - B.y()) - (C.y() - B.y()) * (P.x() - B.x()) > 0 != s_ab) return false;
+
 	return true;
 }
 bool ViewerWidget::isOnEdge(QVector<QVector3D> triangle, QVector3D P) {
@@ -693,7 +705,7 @@ QColor ViewerWidget::Phong_Model(QVector<QVector3D> polygon, Light bulb, QVector
 	QVector3D L = (source - P).normalized();
 	QVector3D R = 2 * QVector3D::dotProduct(L, N) * N - L;
 
-	double dot = std::pow(QVector3D::dotProduct(V, R), 30);
+	double dot = std::pow(QVector3D::dotProduct(V, R), 20);
 
 	int rs = bulb.get_Color().red() * bulb.get_POM_Refl_RGB()[0] * dot;
 	int gs = bulb.get_Color().green() * bulb.get_POM_Refl_RGB()[1] * dot;
@@ -848,18 +860,16 @@ QColor ViewerWidget::Gouraud_Model(QVector<QVector3D> polygon, Light bulb, QVect
 
 	return Barycentric(polygon, P, color);
 }
-
-
 void ViewerWidget::zBuffer(QVector<QVector<QVector3D>> projectedPolygons) {
 	// Image dimensions
 	int width = img->width();
 	int height = img->height();
 
 	// Initialize arrays for storing color and depth
-	QVector<QVector<QColor>> F(width, QVector<QColor>(height, Qt::black)); // Color points
+	QVector<QVector<QColor>> F(width, QVector<QColor>(height, Qt::red)); // Color points
 	QVector<QVector<double>> Z(width, QVector<double>(height, -std::numeric_limits<double>::infinity())); // Depth values
 
-	// Write background color and low depth values
+	// Write background color
 	for (int x = 0; x < width; ++x) {
 		for (int y = 0; y < height; ++y) {
 			F[x][y] = Qt::white; // Background color
@@ -881,21 +891,31 @@ void ViewerWidget::zBuffer(QVector<QVector<QVector3D>> projectedPolygons) {
 			minY = std::min(minY, y);
 			maxY = std::max(maxY, y);
 		}
-		
+		QColor color = Object_data.get_Colors()[i];
 		// Iterate over the bounding box
 		for (int x = minX; x <= maxX; ++x) {
 			for (int y = minY; y <= maxY; ++y) {
+				if (polygon.size() > 3) {
+					if (isInsidePolygon(x, y, polygon)) {
+						double z = interpolateZ(x, y, polygon); // Interpolate z-coordinate
+						if (z > Z[x][y]) {
+							Z[x][y] = z;
+							F[x][y] = color;
+						}
+					}
+				}
 				// Check if the pixel is inside the polygon
 				if (isInsideTriangle(polygon, QVector3D(x, y, 0))) {
 					double z = interpolateZ(x, y, polygon); // Interpolate z-coordinate
 					if (z > Z[x][y]) {
 						Z[x][y] = z;
-						F[x][y] = Qt::black;
+						F[x][y] = color;
 					}
 				}
 			}
 		}
 	}
+	// add edges to zBuffer
 
 	for (int x = 0; x < width; ++x) {
 		for (int y = 0; y < height; ++y) {
@@ -940,7 +960,7 @@ void ViewerWidget::zBuffer(QVector<QVector<QVector3D>> projectedPolygons, Light 
 			for (int y = minY; y < maxY; ++y) {
 				QVector3D P = QVector3D(x, y, 0);
 				// Check if the pixel is inside the polygon
-				if (isInsideTriangle(polygon, P)) {
+				if (isInsideTriangle(polygon, P) || isInsidePolygon(x, y, polygon)) {
 					double z = interpolateZ(x, y, polygon); // Interpolate z-coordinate
 					if (z > Z[x][y]) {
 						Z[x][y] = z;
